@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MultiCardMenu">
+        <attr name="move_distance_to_trigger" format="dimension"/>
+        <attr name="title_bar_height_on_spread" format="dimension"/>
+        <attr name="title_bar_height_on_fold" format="dimension"/>
+        <attr name="margin_top" format="dimension"/>
+    </declare-styleable>
+</resources>
