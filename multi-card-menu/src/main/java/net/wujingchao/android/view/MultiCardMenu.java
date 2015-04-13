@@ -8,10 +8,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
+import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.view.ViewHelper;
 
@@ -30,7 +32,7 @@ public class MultiCardMenu extends FrameLayout {
 
     private final static int DEFAULT_MOVE_DISTANCE_TO_TRIGGER = 50;
 
-    private final static int DEFAULT_DURATION = 800;
+    private final static int DEFAULT_DURATION = 300;
 
     private float mDensity;
 
@@ -126,42 +128,41 @@ public class MultiCardMenu extends FrameLayout {
                 }
             }
         }else if(isDisplaying && downY > (getMeasuredHeight() - (mChildCount - 1) * mTitleBarHeightOnFold)) {
-            //TODO click bottom card
             Log.d(TAG,"click bottom card");
         }else if(isDisplaying && downY > mMarginTop && downY < getChildAt(mDisplayingCard).getMeasuredHeight() + mMarginTop) {
             whichCardOnTouch = mDisplayingCard;
             isTouchOnCard = true;
+            Log.d(TAG,"touch on display card");
         }
-        mTouchViewOriginalY = ViewHelper.getY(getChildAt(whichCardOnTouch));
+        if(whichCardOnTouch != -1)
+            mTouchViewOriginalY = ViewHelper.getY(getChildAt(whichCardOnTouch));
     }
 
     private void handleActionMove(MotionEvent event) {
-        deltaY += (event.getY() - downY);
-        downY = event.getY();
+        if(whichCardOnTouch == -1 || !isTouchOnCard)return;
         View touchingChildView = getChildAt(whichCardOnTouch);
-        if(!isDisplaying && whichCardOnTouch != -1 && isTouchOnCard) {
-            if(ViewHelper.getY(touchingChildView) <= mMarginTop && deltaY < 0){
-                ViewHelper.setY(touchingChildView,mMarginTop);
-                return;
-            }else if(ViewHelper.getY(touchingChildView) >= mTouchViewOriginalY && deltaY > 0) {
-                ViewHelper.setY(touchingChildView, mTouchViewOriginalY);
-                return;
-            }
-            Log.d(TAG,"Y:" + ViewHelper.getY(touchingChildView));
-            ViewHelper.setTranslationY(touchingChildView, deltaY);
-        }else if(isDisplaying && whichCardOnTouch != -1 && isTouchOnCard) {
-//            ViewHelper.setTranslationY(touchingChildView, deltaY);
-            ViewHelper.setY(touchingChildView,downY);
-        }
+        deltaY = (event.getY() - downY);
+        downY = event.getY();
+        touchingChildView.offsetTopAndBottom((int) deltaY);
     }
 
-
     private void handleActionUp(MotionEvent event) {
-        if(!isDisplaying && whichCardOnTouch != -1 && isTouchOnCard && (event.getY() == firstDownY && event.getX() == firstDownX) //means click...
-                || (Math.abs(event.getY() - firstDownY) > mMoveDistanceToTrigger)) {
-               displayCard(whichCardOnTouch);
-        }else if(!isDisplaying && (Math.abs(event.getY() - firstDownY) < mMoveDistanceToTrigger)) {
+        if(whichCardOnTouch == -1 || !isTouchOnCard) return;
+        if(!isDisplaying && ((event.getY() == firstDownY && event.getX() == firstDownX) //means click...
+                || (event.getY() - firstDownY < 0 && (Math.abs(event.getY() - firstDownY) > mMoveDistanceToTrigger)))) {
+            displayCard(whichCardOnTouch);
+        }else if(!isDisplaying && ((event.getY() - firstDownY > 0) || Math.abs(event.getY() - firstDownY) < mMoveDistanceToTrigger)) {
             hideCard(whichCardOnTouch);
+        }else if(isDisplaying) {
+            float currentY = ViewHelper.getY(getChildAt(mDisplayingCard));
+            if(currentY < mMarginTop || currentY < (mMarginTop + mMoveDistanceToTrigger)) {
+                ObjectAnimator.ofFloat(getChildAt(mDisplayingCard),"y",
+                        currentY,mMarginTop)
+                        .setDuration(DEFAULT_DURATION)
+                        .start();
+            }else if(currentY > (mMarginTop + mMoveDistanceToTrigger)) {
+                hideCard(mDisplayingCard);
+            }
         }
         isTouchOnCard = false;
         deltaY = 0;
@@ -182,10 +183,13 @@ public class MultiCardMenu extends FrameLayout {
                 j ++;
             }
         }
-        for(ObjectAnimator o:animators) {
-            o.setInterpolator(interpolator);
-            o.start();
-        }
+//        for(ObjectAnimator o:animators) {
+//            o.setInterpolator(interpolator);
+//            o.start();
+//        }
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(animators);
+        set.start();
         isDisplaying = true;
         mDisplayingCard = which;
     }
@@ -204,10 +208,13 @@ public class MultiCardMenu extends FrameLayout {
                 j ++;
             }
         }
-        for(ObjectAnimator o :animators) {
-            o.setInterpolator(interpolator);
-            o.start();
-        }
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(animators);
+        set.start();
+//        for(ObjectAnimator o :animators) {
+//            o.setInterpolator(interpolator);
+//            o.start();
+//        }
         isDisplaying = false;
         mDisplayingCard = -1;
     }
