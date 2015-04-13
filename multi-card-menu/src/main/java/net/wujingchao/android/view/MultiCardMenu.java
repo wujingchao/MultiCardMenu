@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -68,7 +69,7 @@ public class MultiCardMenu extends FrameLayout {
 
     private boolean isDisplaying = false;
 
-    private Interpolator interpolator = new DecelerateInterpolator();
+    private Interpolator interpolator = new AccelerateInterpolator();
 
     private float mMoveDistanceToTrigger;
 
@@ -128,7 +129,7 @@ public class MultiCardMenu extends FrameLayout {
                 }
             }
         }else if(isDisplaying && downY > (getMeasuredHeight() - (mChildCount - 1) * mTitleBarHeightOnFold)) {
-            Log.d(TAG,"click bottom card");
+            hideCard(mDisplayingCard);
         }else if(isDisplaying && downY > mMarginTop && downY < getChildAt(mDisplayingCard).getMeasuredHeight() + mMarginTop) {
             whichCardOnTouch = mDisplayingCard;
             isTouchOnCard = true;
@@ -141,9 +142,11 @@ public class MultiCardMenu extends FrameLayout {
     private void handleActionMove(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
         View touchingChildView = getChildAt(whichCardOnTouch);
-        deltaY = (event.getY() - downY);
+        deltaY = event.getY() - downY;
         downY = event.getY();
         touchingChildView.offsetTopAndBottom((int) deltaY);
+//        deltaY += event.getY() - downY;       //bug???
+//        ViewHelper.setTranslationY(touchingChildView,deltaY);
     }
 
     private void handleActionUp(MotionEvent event) {
@@ -183,11 +186,8 @@ public class MultiCardMenu extends FrameLayout {
                 j ++;
             }
         }
-//        for(ObjectAnimator o:animators) {
-//            o.setInterpolator(interpolator);
-//            o.start();
-//        }
         AnimatorSet set = new AnimatorSet();
+        set.setInterpolator(interpolator);
         set.playTogether(animators);
         set.start();
         isDisplaying = true;
@@ -209,12 +209,9 @@ public class MultiCardMenu extends FrameLayout {
             }
         }
         AnimatorSet set = new AnimatorSet();
+        set.setInterpolator(interpolator);
         set.playTogether(animators);
         set.start();
-//        for(ObjectAnimator o :animators) {
-//            o.setInterpolator(interpolator);
-//            o.start();
-//        }
         isDisplaying = false;
         mDisplayingCard = -1;
     }
