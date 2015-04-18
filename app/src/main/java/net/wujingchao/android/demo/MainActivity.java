@@ -4,11 +4,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Toast;
-
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 
 import net.wujingchao.android.view.MultiCardMenu;
 
@@ -17,11 +13,13 @@ public class MainActivity extends ActionBarActivity {
 
     private final static String TAG = "MainActivity";
 
+    MultiCardMenu mc;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MultiCardMenu mc = (MultiCardMenu) findViewById(R.id.mc);
+        mc = (MultiCardMenu) findViewById(R.id.mc);
         mc.setOnDisplayOrHideListener(new MultiCardMenu.OnDisplayOrHideListener() {
             @Override
             public void onDisplay(int which) {
@@ -30,12 +28,14 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void onHide(int which) {
-                Log.d(TAG,"onHide:" + which);
+                Log.d(TAG, "onHide:" + which);
             }
         });
     }
 
+
     public void go(View view) {
-        Toast.makeText(this,"gogo",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"getDisplayingCard:" + mc.getDisplayingCard(),Toast.LENGTH_SHORT).show();
     }
+
 }

@@ -7,5 +7,6 @@
         <attr name="margin_top" format="dimension"/>
         <attr name="background_layout" format="reference"/>
         <attr name="animator_duration" format="integer"/>
+        <attr name="fade" format="boolean"/>
     </declare-styleable>
 </resources>

@@ -2,7 +2,7 @@ package net.wujingchao.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.NonNull; 
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -111,6 +111,10 @@ public class MultiCardMenu extends FrameLayout {
 
     private boolean isAnimating = false;
 
+    private DarkFrameLayout mDarkFrameLayout;
+
+    private boolean isFade;
+
     public MultiCardMenu(Context context) {
         this(context,null);
     }
@@ -121,6 +125,9 @@ public class MultiCardMenu extends FrameLayout {
 
     public MultiCardMenu(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        ViewConfiguration vc = ViewConfiguration.get(context);
+        mMaxVelocity = vc.getScaledMaximumFlingVelocity();
+        mMinVelocity = vc.getScaledMinimumFlingVelocity() * 2;
         mDensity = context.getResources().getDisplayMetrics().density;
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MultiCardMenu, defStyleAttr, 0);
         mTitleBarHeightOnSpread = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_on_spread,dip2px(DEFAULT_TITLE_BAR_HEIGHT_ON_SPREAD));
@@ -128,15 +135,19 @@ public class MultiCardMenu extends FrameLayout {
         mMarginTop = a.getDimension(R.styleable.MultiCardMenu_margin_top, dip2px(DEFAULT_CARD_MARGIN_TOP));
         mMoveDistanceToTrigger = a.getDimension(R.styleable.MultiCardMenu_move_distance_to_trigger,dip2px(DEFAULT_MOVE_DISTANCE_TO_TRIGGER));
         int mBackgroundRid = a.getResourceId(R.styleable.MultiCardMenu_background_layout,-1);
+        mDuration = a.getInt(R.styleable.MultiCardMenu_animator_duration,DEFAULT_DURATION);
+        isFade = a.getBoolean(R.styleable.MultiCardMenu_fade,true);
+        a.recycle();
         if(mBackgroundRid != -1) {
-            LayoutInflater.from(context).inflate(mBackgroundRid,this);
+            if(isFade) {
+                mDarkFrameLayout = new DarkFrameLayout(context);
+                mDarkFrameLayout.addView(LayoutInflater.from(context).inflate(mBackgroundRid, null));
+                addView(mDarkFrameLayout);
+            }else {
+                LayoutInflater.from(context).inflate(mBackgroundRid, this);
+            }
             isExistBackground = true;
         }
-        mDuration = a.getInt(R.styleable.MultiCardMenu_animator_duration,DEFAULT_DURATION);
-        a.recycle();
-        ViewConfiguration vc = ViewConfiguration.get(context);
-        mMaxVelocity = vc.getScaledMaximumFlingVelocity();
-        mMinVelocity = vc.getScaledMinimumFlingVelocity() * 2;
     }
 
     @Override
@@ -261,22 +272,26 @@ public class MultiCardMenu extends FrameLayout {
     }
 
     private void displayCard(final int which) {
-        //TODO add fade
         if(isDisplaying || isAnimating)return;
+        if(isFade && mDarkFrameLayout != null) mDarkFrameLayout.fade(true);
         List<Animator> animators = new ArrayList<>(mChildCount);
-        ObjectAnimator displayAnimator = ObjectAnimator
-                .ofFloat(getChildAt(which), "y", ViewHelper.getY(getChildAt(which)), mMarginTop)
-                .setDuration(mDuration);
-//        ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(getChildAt(which)), mMarginTop)
-//                 .setDuration(mDuration);
-//        displayAnimator.setTarget(getChildAt(which));
-//        displayAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-//                float value = (float) valueAnimator.getAnimatedValue();
-//                ViewHelper.setY(getChildAt(which),value);
-//            }
-//        });
+//        ObjectAnimator displayAnimator = ObjectAnimator
+//                .ofFloat(getChildAt(which), "y", ViewHelper.getY(getChildAt(which)), mMarginTop)
+//                .setDuration(mDuration);
+        final float distance = ViewHelper.getY(getChildAt(which)) - mMarginTop;
+        ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(getChildAt(which)), mMarginTop)
+                 .setDuration(mDuration);
+        displayAnimator.setTarget(getChildAt(which));
+        displayAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float value = (float) valueAnimator.getAnimatedValue();
+                ViewHelper.setY(getChildAt(which), value);
+                if(mDarkFrameLayout != null && isFade) {
+                    mDarkFrameLayout.fade((int) ((1-(value - mMarginTop)/distance) * DarkFrameLayout.MAX_ALPHA));
+                }
+            }
+        });
         animators.add(displayAnimator);
         int n = isExistBackground ? (mChildCount - 1) : mChildCount;
         for(int i = 0,j = 1; i < mChildCount; i++) {
@@ -306,18 +321,22 @@ public class MultiCardMenu extends FrameLayout {
         List<Animator> animators = new ArrayList<>(mChildCount);
         final View displayingCard = getChildAt(which);
         int t = (int) (getMeasuredHeight() - (mChildCount - which)* mTitleBarHeightOnSpread);
-        ObjectAnimator displayAnimator = ObjectAnimator.ofFloat(displayingCard, "y",
-                ViewHelper.getY(displayingCard), t).setDuration(mDuration);
-//        ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(displayingCard), t)
-//                       .setDuration(mDuration);
-//        displayAnimator.setTarget(displayingCard);
-//        displayAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-//                float value = (float) valueAnimator.getAnimatedValue();
-//                ViewHelper.setY(displayingCard,value);
-//            }
-//        });
+//        ObjectAnimator displayAnimator = ObjectAnimator.ofFloat(displayingCard, "y",
+//                ViewHelper.getY(displayingCard), t).setDuration(mDuration);
+        ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(displayingCard), t)
+                       .setDuration(mDuration);
+        displayAnimator.setTarget(displayingCard);
+        final int finalT = t;
+        displayAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float value = (float) valueAnimator.getAnimatedValue();
+                ViewHelper.setY(displayingCard,value);
+                if(mDarkFrameLayout != null && isFade && value < finalT) {
+                    mDarkFrameLayout.fade((int) ((1 - value/ finalT) * DarkFrameLayout.MAX_ALPHA));
+                }
+            }
+        });
         animators.add(displayAnimator);
         for(int i = 0; i < mChildCount; i ++) {
             if(i == 0 && isExistBackground) continue;
@@ -345,6 +364,15 @@ public class MultiCardMenu extends FrameLayout {
 
     public void setInterpolator(Interpolator interpolator) {
         this.mInterpolator = interpolator;
+    }
+
+
+    /**
+     *
+     * @return less than 0 :No Display Card
+     */
+    public int getDisplayingCard() {
+        return isExistBackground ? (mDisplayingCard - 1) : mDisplayingCard;
     }
 
     @Override
