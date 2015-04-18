@@ -162,6 +162,8 @@ public class  MultiCardMenu extends FrameLayout {
         }
     }
 
+    //TODO support listview
+
     @Override
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         initVelocityTracker(event);

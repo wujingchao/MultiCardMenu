@@ -59,4 +59,29 @@ public class MainActivity extends ActionBarActivity {
             super.onBackPressed();
         }
     }
+
+    public void blue(View view) {
+        Toast.makeText(this,"Blue",Toast.LENGTH_SHORT).show();
+    }
+
+    public void fail(View view) {
+        Toast.makeText(this,"Fail",Toast.LENGTH_SHORT).show();
+    }
+
+    public void one(View view) {
+        mc.show(0);
+    }
+
+    public void two(View view) {
+        mc.show(1);
+    }
+
+    public void three(View view) {
+        mc.show(2);
+    }
+
+    public void four(View view) {
+        mc.show(3);
+    }
+
 }
