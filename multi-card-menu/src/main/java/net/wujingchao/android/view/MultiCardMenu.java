@@ -276,22 +276,20 @@ public class MultiCardMenu extends FrameLayout {
         xVelocity = mVelocityTracker.getXVelocity();
     }
 
-    private void displayCard(final int which) {
+    private void displayCard(int which) {
         if(isDisplaying || isAnimating)return;
         if(isFade && mDarkFrameLayout != null) mDarkFrameLayout.fade(true);
         List<Animator> animators = new ArrayList<>(mChildCount);
-//        ObjectAnimator displayAnimator = ObjectAnimator
-//                .ofFloat(getChildAt(which), "y", ViewHelper.getY(getChildAt(which)), mMarginTop)
-//                .setDuration(mDuration);
         final float distance = ViewHelper.getY(getChildAt(which)) - mMarginTop;
         ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(getChildAt(which)), mMarginTop)
                  .setDuration(mDuration);
         displayAnimator.setTarget(getChildAt(which));
+        final View displayingView = getChildAt(which);
         displayAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float value = (float) valueAnimator.getAnimatedValue();
-                ViewHelper.setY(getChildAt(which), value);
+                ViewHelper.setY(displayingView, value);
                 if(mDarkFrameLayout != null && isFade) {
                     mDarkFrameLayout.fade((int) ((1-(value - mMarginTop)/distance) * DarkFrameLayout.MAX_ALPHA));
                 }
@@ -326,8 +324,6 @@ public class MultiCardMenu extends FrameLayout {
         List<Animator> animators = new ArrayList<>(mChildCount);
         final View displayingCard = getChildAt(which);
         int t = (int) (getMeasuredHeight() - (mChildCount - which)* mTitleBarHeightOnSpread);
-//        ObjectAnimator displayAnimator = ObjectAnimator.ofFloat(displayingCard, "y",
-//                ViewHelper.getY(displayingCard), t).setDuration(mDuration);
         ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(displayingCard), t)
                        .setDuration(mDuration);
         displayAnimator.setTarget(displayingCard);
@@ -362,6 +358,20 @@ public class MultiCardMenu extends FrameLayout {
             mOnDisplayOrHideListener.onHide(isExistBackground ? (which - 1) : which);
     }
 
+    public void show(int index) {
+        if (isExistBackground)index ++;
+        if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
+        displayCard(index);
+    }
+
+
+
+    public void hide(int index) {
+        if(isExistBackground) index ++;
+        if(index != mDisplayingCard || !isDisplaying) return;
+        if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
+        hideCard(index);
+    }
 
     public void setOnDisplayOrHideListener(OnDisplayOrHideListener onDisplayOrHideListener) {
         this.mOnDisplayOrHideListener = onDisplayOrHideListener;
@@ -378,6 +388,10 @@ public class MultiCardMenu extends FrameLayout {
      */
     public int getDisplayingCard() {
         return isExistBackground ? (mDisplayingCard - 1) : mDisplayingCard;
+    }
+
+    public boolean isDisplaying() {
+        return isDisplaying;
     }
 
     @Override

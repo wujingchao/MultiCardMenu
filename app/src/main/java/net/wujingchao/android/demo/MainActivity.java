@@ -38,4 +38,24 @@ public class MainActivity extends ActionBarActivity {
         Toast.makeText(this,"getDisplayingCard:" + mc.getDisplayingCard(),Toast.LENGTH_SHORT).show();
     }
 
+    int i = -1;
+
+    public void show(View view) {
+        i ++;
+        Log.d(TAG,"index:" + i);
+        mc.show(i);
+    }
+
+    public void hide(View view) {
+        mc.hide(mc.getDisplayingCard());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mc.isDisplaying()) {
+            mc.hide(mc.getDisplayingCard());
+        }else {
+            super.onBackPressed();
+        }
+    }
 }
