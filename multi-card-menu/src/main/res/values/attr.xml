@@ -6,5 +6,6 @@
         <attr name="title_bar_height_on_fold" format="dimension"/>
         <attr name="margin_top" format="dimension"/>
         <attr name="background_layout" format="reference"/>
+        <attr name="animator_duration" format="integer"/>
     </declare-styleable>
 </resources>

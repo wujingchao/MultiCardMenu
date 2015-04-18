@@ -14,6 +14,7 @@
     <net.wujingchao.android.view.MultiCardMenu
         xmlns:simple="http://schemas.android.com/apk/res-auto"
         simple:background_layout="@layout/main2"
+        simple:margin_top="80dp"
         android:id="@+id/mc"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

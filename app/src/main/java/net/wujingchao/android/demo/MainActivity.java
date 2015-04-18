@@ -4,6 +4,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.nineoldandroids.animation.ObjectAnimator;
@@ -32,14 +33,6 @@ public class MainActivity extends ActionBarActivity {
                 Log.d(TAG,"onHide:" + which);
             }
         });
-    }
-
-    public void tranlate(View view) {
-        Log.d(TAG,"Y:" + ViewHelper.getY(view));
-        ObjectAnimator
-                .ofFloat(view, "y", ViewHelper.getY(view), ViewHelper.getY(view) + 100)
-                .setDuration(500)
-                .start();
     }
 
     public void go(View view) {
