@@ -37,7 +37,7 @@ public class MultiCardMenu extends FrameLayout {
 
     private final static int DEFAULT_MOVE_DISTANCE_TO_TRIGGER = 30;
 
-    private final static int DEFAULT_DURATION = 300;
+    private final static int DEFAULT_DURATION = 250;
 
     private float mDensity;
 
@@ -204,6 +204,7 @@ public class MultiCardMenu extends FrameLayout {
     private void handleActionDown(MotionEvent event) {
         firstDownY = downY = event.getY();
         firstDownX = event.getX();
+        int childCount = isExistBackground ? (mChildCount - 1) : mChildCount;
         //Judge which card on touching
         if(!isDisplaying && downY > (getMeasuredHeight() - mChildCount * mTitleBarHeightOnSpread)) {
             for(int i = 1; i <= mChildCount; i ++) {
@@ -214,11 +215,15 @@ public class MultiCardMenu extends FrameLayout {
                     break;
                 }
             }
-        }else if(isDisplaying && downY > (getMeasuredHeight() - (mChildCount - 1) * mTitleBarHeightOnFold)) {
+        }else if(isDisplaying && downY > (getMeasuredHeight() - (childCount - 1) * mTitleBarHeightOnFold)) {
             hideCard(mDisplayingCard);
         }else if(isDisplaying && downY > mMarginTop && downY < getChildAt(mDisplayingCard).getMeasuredHeight() + mMarginTop) {
             whichCardOnTouch = mDisplayingCard;
             isTouchOnCard = true;
+        }else if(isDisplaying && (downY < mMarginTop
+                    || (downY > mMarginTop + getChildAt(mDisplayingCard).getMeasuredHeight()))
+                ) {
+            hideCard(mDisplayingCard);
         }
 
         if(isExistBackground && whichCardOnTouch == 0){
