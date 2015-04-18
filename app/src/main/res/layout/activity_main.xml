@@ -4,89 +4,111 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="show"
-        android:onClick="show"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="hide"
-        android:onClick="hide"/>
-
     <net.wujingchao.android.view.MultiCardMenu
         xmlns:simple="http://schemas.android.com/apk/res-auto"
         simple:background_layout="@layout/main2"
         simple:margin_top="80dp"
         simple:fade="true"
-        android:id="@+id/mc"
+        simple:title_bar_height_display="20dp"
+        simple:title_bar_height_no_display="60dp"
+        android:id="@+id/multi_card_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:layout_alignParentBottom="true">
-          <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="300dip"
-                android:layout_marginTop="30dip"
-                android:background="@color/holo_blue_dark">
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="GO"
-                    android:onClick="go"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="清理加速"/>
-            </LinearLayout>
-
-           <LinearLayout
-               android:layout_width="match_parent"
-               android:layout_height="300dip"
-               android:background="@color/holo_green_dark">
-               <Button
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="GO"
-                   android:onClick="go"/>
-               <TextView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="防护监控"/>
-           </LinearLayout>
-           <LinearLayout
-               android:layout_width="match_parent"
-               android:layout_height="300dip"
-               android:background="@color/holo_red_dark">
-               <Button
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="GO"
-                   android:onClick="go"/>
-               <TextView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="软件管理"/>
-           </LinearLayout>
-
+        android:layout_height="match_parent">
        <LinearLayout
-           android:layout_width="match_parent"
-           android:layout_height="300dip"
-           android:background="@color/ripple_material_light">
-           <Button
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="GO"
-               android:onClick="go"/>
-           <TextView
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:textColor="@android:color/white"
-               android:text=" 通话管理"/>
-       </LinearLayout>
+               android:layout_width="match_parent"
+               android:layout_height="400dip"
+               android:orientation="vertical">
+               <TextView
+                   android:layout_width="match_parent"
+                   android:layout_height="70dp"
+                   android:background="@drawable/title_bar"
+                   android:textColor="@color/title_bar_text"
+                   android:gravity="center_vertical"
+                   android:text="Destiny"
+                   android:textStyle="bold"
+                   android:textSize="20sp"
+                   android:paddingLeft="10dp"/>
 
-        </net.wujingchao.android.view.MultiCardMenu>
+                   <TableLayout
+                       android:background="#3C3F41"
+                       android:layout_width="match_parent"
+                       android:layout_height="match_parent">
+
+                       <TableRow
+                           android:layout_weight="1">
+                           <Button
+                               android:textColor="#BABABA"
+                               android:layout_weight="1"
+                               android:layout_height="match_parent"
+                               android:text="Blue"/>
+                           <Button
+                               android:textColor="#BABABA"
+                               android:layout_height="match_parent"
+                               android:layout_weight="1"
+                               android:text="Fail"/>
+                       </TableRow>
+                       <TableRow
+                           android:layout_weight="1">
+                           <Button
+                               android:textColor="#BABABA"
+                               android:layout_height="match_parent"
+                               android:layout_weight="1"
+                               android:text="Hope"/>
+                           <Button
+                               android:textColor="#BABABA"
+                               android:layout_height="match_parent"
+                               android:layout_weight="1"
+                               android:text="Nice"/>
+                       </TableRow>
+                   </TableLayout>
+           </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="400dip"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:background="@drawable/title_bar"
+                android:textColor="@color/title_bar_text"
+                android:gravity="center_vertical"
+                android:text="Rainbow"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:paddingLeft="10dp"/>
+
+            <SeekBar
+                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="400dip"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:background="@drawable/title_bar"
+                android:textColor="@color/title_bar_text"
+                android:gravity="center_vertical"
+                android:text="Eternity"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:paddingLeft="10dp"/>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ent"/>
+        </LinearLayout>
+
+    </net.wujingchao.android.view.MultiCardMenu>
 
 
 </LinearLayout>

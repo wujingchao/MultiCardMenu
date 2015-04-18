@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 /**
@@ -19,6 +20,10 @@ class DarkFrameLayout extends FrameLayout {
 
     private int alpha = 0x00;
 
+    public boolean isDispatch = false;
+
+    private MultiCardMenu multiMenu;
+
     public DarkFrameLayout(Context context) {
         this(context, null);
     }
@@ -31,6 +36,11 @@ class DarkFrameLayout extends FrameLayout {
     public DarkFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mFadePaint = new Paint();
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return multiMenu.isDisplaying();
     }
 
     @Override
@@ -52,6 +62,10 @@ class DarkFrameLayout extends FrameLayout {
     public void fade(int alpha) {
         this.alpha = alpha;
         invalidate();
+    }
+
+    public void setMultiMenu(MultiCardMenu multiMenu) {
+        this.multiMenu = multiMenu;
     }
 
 }

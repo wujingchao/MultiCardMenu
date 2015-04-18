@@ -19,7 +19,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mc = (MultiCardMenu) findViewById(R.id.mc);
+        mc = (MultiCardMenu) findViewById(R.id.multi_card_menu);
         mc.setOnDisplayOrHideListener(new MultiCardMenu.OnDisplayOrHideListener() {
             @Override
             public void onDisplay(int which) {
@@ -42,6 +42,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void show(View view) {
         i ++;
+        if(mc.getChildCount() <= i) i = 0;
         Log.d(TAG,"index:" + i);
         mc.show(i);
     }

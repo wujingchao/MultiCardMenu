@@ -2,8 +2,8 @@
 <resources>
     <declare-styleable name="MultiCardMenu">
         <attr name="move_distance_to_trigger" format="dimension"/>
-        <attr name="title_bar_height_on_spread" format="dimension"/>
-        <attr name="title_bar_height_on_fold" format="dimension"/>
+        <attr name="title_bar_height_no_display" format="dimension"/>
+        <attr name="title_bar_height_display" format="dimension"/>
         <attr name="margin_top" format="dimension"/>
         <attr name="background_layout" format="reference"/>
         <attr name="animator_duration" format="integer"/>
