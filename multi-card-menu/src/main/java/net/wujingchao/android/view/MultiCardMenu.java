@@ -94,6 +94,8 @@ public class  MultiCardMenu extends FrameLayout {
 
     private boolean isFade;
 
+    private int mTouchSlop;
+
     public MultiCardMenu(Context context) {
         this(context,null);
     }
@@ -107,6 +109,7 @@ public class  MultiCardMenu extends FrameLayout {
         ViewConfiguration vc = ViewConfiguration.get(context);
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
         mMinVelocity = vc.getScaledMinimumFlingVelocity() * 2;
+        mTouchSlop = vc.getScaledTouchSlop();
         mDensity = context.getResources().getDisplayMetrics().density;
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MultiCardMenu, defStyleAttr, 0);
         mTitleBarHeightOnSpread = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_no_display,dip2px(DEFAULT_TITLE_BAR_HEIGHT_ON_SPREAD));
@@ -220,12 +223,17 @@ public class  MultiCardMenu extends FrameLayout {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
         computeVelocity();
         if(Math.abs(yVelocity) < Math.abs(xVelocity)) return;
-        event.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex()<< MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-        isDragging = true;
-        deltaY = event.getY() - downY;
-        downY = event.getY();
-        View touchingChildView = getChildAt(whichCardOnTouch);
-        touchingChildView.offsetTopAndBottom((int) deltaY);
+        if(!isDragging && Math.abs(event.getY() - firstDownY) > mTouchSlop
+                && Math.abs(event.getX() - firstDownX) < mTouchSlop) {
+            isDragging = true;
+        }
+        if(isDragging) {
+            event.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex()<< MotionEvent.ACTION_POINTER_INDEX_SHIFT));
+            deltaY = event.getY() - downY;
+            downY = event.getY();
+            View touchingChildView = getChildAt(whichCardOnTouch);
+            touchingChildView.offsetTopAndBottom((int) deltaY);
+        }
     }
 
     private void handleActionUp(MotionEvent event) {
