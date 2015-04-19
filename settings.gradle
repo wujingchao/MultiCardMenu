@@ -1,1 +1,1 @@
-include ':app', ':multi-card-menu'
+include ':demo', ':multi-card-menu'
