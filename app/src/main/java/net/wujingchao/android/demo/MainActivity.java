@@ -34,19 +34,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    public void go(View view) {
-        Toast.makeText(this,"getDisplayingCard:" + mc.getDisplayingCard(),Toast.LENGTH_SHORT).show();
-    }
-
-    int i = -1;
-
-    public void show(View view) {
-        i ++;
-        if(mc.getChildCount() <= i) i = 0;
-        Log.d(TAG,"index:" + i);
-        mc.show(i);
-    }
-
     public void hide(View view) {
         mc.hide(mc.getDisplayingCard());
     }

@@ -8,5 +8,6 @@
         <attr name="background_layout" format="reference"/>
         <attr name="animator_duration" format="integer"/>
         <attr name="fade" format="boolean"/>
+        <attr name="boundary" format="boolean"/>
     </declare-styleable>
 </resources>

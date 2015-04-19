@@ -3,7 +3,6 @@ package net.wujingchao.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -32,19 +31,23 @@ public class  MultiCardMenu extends FrameLayout {
 
     private final static int DEFAULT_CARD_MARGIN_TOP = 0;
 
-    private final static int DEFAULT_TITLE_BAR_HEIGHT_ON_SPREAD = 60;
+    private final static int DEFAULT_TITLE_BAR_HEIGHT_NO_DISPLAY = 60;
 
-    private final static int DEFAULT_TITLE_BAR_HEIGHT_ON_FOLD = 20;
+    private final static int DEFAULT_TITLE_BAR_HEIGHT_DISPLAY = 20;
 
     private final static int DEFAULT_MOVE_DISTANCE_TO_TRIGGER = 30;
 
     private final static int DEFAULT_DURATION = 250;
 
+    private final static int MAX_CLICK_TIME = 300;
+
+    private static float MAX_CLICK_DISTANCE = 5;
+
     private float mDensity;
 
-    private float mTitleBarHeightOnSpread;
+    private float mTitleBarHeightNoDisplay;
 
-    private float mTitleBarHeightOnFold;
+    private float mTitleBarHeightDisplay;
 
     private VelocityTracker mVelocityTracker;
 
@@ -96,6 +99,12 @@ public class  MultiCardMenu extends FrameLayout {
 
     private int mTouchSlop;
 
+    private long mPressStartTime;
+
+    private boolean mBoundary;
+
+    private float mTouchingViewOriginY;
+
     public MultiCardMenu(Context context) {
         this(context,null);
     }
@@ -108,17 +117,18 @@ public class  MultiCardMenu extends FrameLayout {
         super(context, attrs, defStyleAttr);
         ViewConfiguration vc = ViewConfiguration.get(context);
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
-        mMinVelocity = vc.getScaledMinimumFlingVelocity() * 2;
+        mMinVelocity = vc.getScaledMinimumFlingVelocity() * 8;
         mTouchSlop = vc.getScaledTouchSlop();
         mDensity = context.getResources().getDisplayMetrics().density;
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MultiCardMenu, defStyleAttr, 0);
-        mTitleBarHeightOnSpread = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_no_display,dip2px(DEFAULT_TITLE_BAR_HEIGHT_ON_SPREAD));
-        mTitleBarHeightOnFold = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_display, dip2px(DEFAULT_TITLE_BAR_HEIGHT_ON_FOLD));
+        MAX_CLICK_DISTANCE = mTitleBarHeightNoDisplay = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_no_display,dip2px(DEFAULT_TITLE_BAR_HEIGHT_NO_DISPLAY));
+        mTitleBarHeightDisplay = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_display, dip2px(DEFAULT_TITLE_BAR_HEIGHT_DISPLAY));
         mMarginTop = a.getDimension(R.styleable.MultiCardMenu_margin_top, dip2px(DEFAULT_CARD_MARGIN_TOP));
         mMoveDistanceToTrigger = a.getDimension(R.styleable.MultiCardMenu_move_distance_to_trigger,dip2px(DEFAULT_MOVE_DISTANCE_TO_TRIGGER));
         int mBackgroundRid = a.getResourceId(R.styleable.MultiCardMenu_background_layout,-1);
         mDuration = a.getInt(R.styleable.MultiCardMenu_animator_duration,DEFAULT_DURATION);
         isFade = a.getBoolean(R.styleable.MultiCardMenu_fade,true);
+        mBoundary = a.getBoolean(R.styleable.MultiCardMenu_boundary,false);
         a.recycle();
         if(mBackgroundRid != -1) {
             if(isFade) {
@@ -145,7 +155,7 @@ public class  MultiCardMenu extends FrameLayout {
             }
 //            FrameLayout.LayoutParams params = (LayoutParams) childView.getLayoutParams();
             //l t r b
-            int t = (int) (getMeasuredHeight() - (mChildCount - i)* mTitleBarHeightOnSpread);
+            int t = (int) (getMeasuredHeight() - (mChildCount - i)* mTitleBarHeightNoDisplay);
             childView.layout(0, t, childView.getMeasuredWidth(), childView.getMeasuredHeight() + t);
         }
     }
@@ -170,9 +180,10 @@ public class  MultiCardMenu extends FrameLayout {
     @Override
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         initVelocityTracker(event);
+        boolean isConsume = false;
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                handleActionDown(event);
+                isConsume = handleActionDown(event);
                 break;
             case MotionEvent.ACTION_MOVE:
                 handleActionMove(event);
@@ -183,41 +194,43 @@ public class  MultiCardMenu extends FrameLayout {
                 releaseVelocityTracker();
                 break;
         }
-        return super.dispatchTouchEvent(event);
+        return isConsume || super.dispatchTouchEvent(event);
     }
 
-
-    private void handleActionDown(MotionEvent event) {
+    private boolean handleActionDown(MotionEvent event) {
+        boolean isConsume = false;
+        mPressStartTime = System.currentTimeMillis();
         firstDownY = downY = event.getY();
         firstDownX = event.getX();
         int childCount = isExistBackground ? (mChildCount - 1) : mChildCount;
         //Judge which card on touching
-        if(!isDisplaying && downY > (getMeasuredHeight() - mChildCount * mTitleBarHeightOnSpread)) {
+        if(!isDisplaying && downY > (getMeasuredHeight() - mChildCount * mTitleBarHeightNoDisplay)) {
             for(int i = 1; i <= mChildCount; i ++) {
-                if(downY < (getMeasuredHeight() - mChildCount * mTitleBarHeightOnSpread
-                        + mTitleBarHeightOnSpread * i)) {
+                if(downY < (getMeasuredHeight() - mChildCount * mTitleBarHeightNoDisplay
+                        + mTitleBarHeightNoDisplay * i)) {
                     whichCardOnTouch = i-1;
                     isTouchOnCard = true;
+                    isConsume = true;
                     break;
                 }
             }
-        }else if(isDisplaying && downY > (getMeasuredHeight() - (childCount - 1) * mTitleBarHeightOnFold)) {
+            mTouchingViewOriginY = ViewHelper.getY(getChildAt(whichCardOnTouch));
+        }else if(isDisplaying && downY > (getMeasuredHeight() - (childCount - 1) * mTitleBarHeightDisplay)) {
             hideCard(mDisplayingCard);
         }else if(isDisplaying && downY > mMarginTop && mDisplayingCard >= 0 && downY < getChildAt(mDisplayingCard).getMeasuredHeight() + mMarginTop) {
             whichCardOnTouch = mDisplayingCard;
             isTouchOnCard = true;
         }else if(isDisplaying && (downY < mMarginTop
-                    || (mDisplayingCard >= 0 && (downY > mMarginTop + getChildAt(mDisplayingCard).getMeasuredHeight())))
-                ) {
+                    || (mDisplayingCard >= 0
+                    && (downY > mMarginTop + getChildAt(mDisplayingCard).getMeasuredHeight())))) {
             hideCard(mDisplayingCard);
         }
 
         if(isExistBackground && whichCardOnTouch == 0){
             isTouchOnCard = false;
         }
+        return isConsume;
     }
-
-
 
     private void handleActionMove(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
@@ -226,26 +239,40 @@ public class  MultiCardMenu extends FrameLayout {
         if(!isDragging && Math.abs(event.getY() - firstDownY) > mTouchSlop
                 && Math.abs(event.getX() - firstDownX) < mTouchSlop) {
             isDragging = true;
+            downY = event.getY();
         }
+
         if(isDragging) {
-            event.setAction(MotionEvent.ACTION_CANCEL | (event.getActionIndex()<< MotionEvent.ACTION_POINTER_INDEX_SHIFT));
             deltaY = event.getY() - downY;
             downY = event.getY();
             View touchingChildView = getChildAt(whichCardOnTouch);
-            touchingChildView.offsetTopAndBottom((int) deltaY);
+            if(!mBoundary) {
+                touchingChildView.offsetTopAndBottom((int) deltaY);
+            }else {
+                float touchingViewY = ViewHelper.getY(touchingChildView);
+                if(touchingViewY + deltaY <= mMarginTop) {
+                    touchingChildView.offsetTopAndBottom((int) (mMarginTop - touchingViewY));
+                }else if(touchingViewY + deltaY >= mTouchingViewOriginY) {
+                    touchingChildView.offsetTopAndBottom((int) (mTouchingViewOriginY - touchingViewY));
+                }else {
+                    touchingChildView.offsetTopAndBottom((int) deltaY);
+                }
+            }
         }
     }
 
     private void handleActionUp(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard) return;
+        long pressDuration = System.currentTimeMillis() - mPressStartTime;
         computeVelocity();
-        if(!isDisplaying && (
-            ((int)event.getY() == (int)firstDownY && (int)event.getX() == (int)firstDownX) //means click...
-                || (event.getY() - firstDownY < 0 && (Math.abs(event.getY() - firstDownY) > mMoveDistanceToTrigger))
+        if(!isDisplaying && ((event.getY() - firstDownY < 0 && (Math.abs(event.getY() - firstDownY) > mMoveDistanceToTrigger))
                 || (yVelocity < 0 && Math.abs(yVelocity) > mMinVelocity && Math.abs(yVelocity)> Math.abs(xVelocity))
-        )) {
+        )){
             displayCard(whichCardOnTouch);
-        }else if(!isDisplaying && ((event.getY() - firstDownY > 0) || Math.abs(event.getY() - firstDownY) < mMoveDistanceToTrigger)) {
+        }else if(!isDisplaying && pressDuration < MAX_CLICK_TIME &&   //means click
+                distance(firstDownX,firstDownY,event.getX(),event.getY()) < MAX_CLICK_DISTANCE) {
+            displayCard(whichCardOnTouch);
+        }else if(!isDisplaying && isDragging &&  ((event.getY() - firstDownY > 0) || Math.abs(event.getY() - firstDownY) < mMoveDistanceToTrigger)) {
             hideCard(whichCardOnTouch);
         }else if(isDisplaying) {
             float currentY = ViewHelper.getY(getChildAt(mDisplayingCard));
@@ -257,10 +284,18 @@ public class  MultiCardMenu extends FrameLayout {
             }else if(currentY > (mMarginTop + mMoveDistanceToTrigger)) {
                 hideCard(mDisplayingCard);
             }
-        }
+        }/*else if(!isDisplaying && event.getY() > ViewHelper.getY(getChildAt(whichCardOnTouch))
+                 && event.getY() < ViewHelper.getY(getChildAt(whichCardOnTouch)) + mTitleBarHeightNoDisplay) {
+        }*/
         isTouchOnCard = false;
         deltaY = 0;
         isDragging = false;
+    }
+
+    private double distance(float x1, float y1, float x2, float y2) {
+        float deltaX = x2 - x1;
+        float deltaY = y2 - y1;
+        return  Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 
     private void computeVelocity() {
@@ -294,8 +329,8 @@ public class  MultiCardMenu extends FrameLayout {
             if(i == 0 && isExistBackground) continue;
             if(i != which){
                 animators.add(ObjectAnimator
-                        .ofFloat(getChildAt(i),"y",ViewHelper.getY(getChildAt(i)),
-                                getMeasuredHeight() - mTitleBarHeightOnFold * (n - j))
+                        .ofFloat(getChildAt(i), "y", ViewHelper.getY(getChildAt(i)),
+                                getMeasuredHeight() - mTitleBarHeightDisplay * (n - j))
                         .setDuration(mDuration));
                 j ++;
             }
@@ -336,7 +371,7 @@ public class  MultiCardMenu extends FrameLayout {
         if(isAnimating)return;
         List<Animator> animators = new ArrayList<>(mChildCount);
         final View displayingCard = getChildAt(which);
-        int t = (int) (getMeasuredHeight() - (mChildCount - which)* mTitleBarHeightOnSpread);
+        int t = (int) (getMeasuredHeight() - (mChildCount - which)* mTitleBarHeightNoDisplay);
         ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(displayingCard), t)
                        .setDuration(mDuration);
         displayAnimator.setTarget(displayingCard);
@@ -355,7 +390,7 @@ public class  MultiCardMenu extends FrameLayout {
         for(int i = 0; i < mChildCount; i ++) {
             if(i == 0 && isExistBackground) continue;
             if(i != which) {
-                t = (int) (getMeasuredHeight() - (mChildCount - i)* mTitleBarHeightOnSpread);
+                t = (int) (getMeasuredHeight() - (mChildCount - i)* mTitleBarHeightNoDisplay);
                 animators.add(ObjectAnimator.ofFloat(getChildAt(i),"y",
                         ViewHelper.getY(getChildAt(i)),t));
             }
@@ -411,7 +446,8 @@ public class  MultiCardMenu extends FrameLayout {
         this.mOnDisplayOrHideListener = onDisplayOrHideListener;
     }
 
-    public void setInterpolator(Interpolator interpolator) {
+    @SuppressWarnings("unused")
+    public void setAnimatorInterpolator(Interpolator interpolator) {
         this.mInterpolator = interpolator;
     }
 
@@ -438,6 +474,7 @@ public class  MultiCardMenu extends FrameLayout {
         return true;
     }
 
+    @SuppressWarnings("unused")
     private int px2dip(float pxVal) {
         return (int)(pxVal/mDensity + 0.5f);
     }

@@ -20,8 +20,6 @@ class DarkFrameLayout extends FrameLayout {
 
     private int alpha = 0x00;
 
-    public boolean isDispatch = false;
-
     private MultiCardMenu multiMenu;
 
     public DarkFrameLayout(Context context) {

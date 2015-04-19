@@ -13,7 +13,8 @@
         simple:margin_top="80dp"
         simple:fade="true"
         simple:title_bar_height_display="20dp"
-        simple:title_bar_height_no_display="60dp">
+        simple:title_bar_height_no_display="60dp"
+        simple:boundary="true">
 
         <LinearLayout
             android:layout_width="match_parent"
