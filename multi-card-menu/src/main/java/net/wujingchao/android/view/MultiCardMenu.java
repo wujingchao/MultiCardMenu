@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @author wujingchao  2015-04-01 email:wujingchao@aliyun.com
  *
- * TODO support listview
+ * TODO support listview scrollview
  */
 @SuppressWarnings("unused")
 public class  MultiCardMenu extends FrameLayout {
