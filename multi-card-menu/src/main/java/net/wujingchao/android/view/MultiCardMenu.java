@@ -24,7 +24,10 @@ import java.util.List;
 
 /**
  * @author wujingchao  2015-04-01 email:wujingchao@aliyun.com
+ *
+ * TODO support listview
  */
+@SuppressWarnings("unused")
 public class  MultiCardMenu extends FrameLayout {
 
     private final static String TAG = "MultiCardMenu";
@@ -69,7 +72,9 @@ public class  MultiCardMenu extends FrameLayout {
 
     private boolean isDisplaying = false;
 
-    private Interpolator mInterpolator = new AccelerateInterpolator();
+    private Interpolator mOpenAnimatorInterpolator = new AccelerateInterpolator();
+
+    private Interpolator mCloseAnimatorInterpolator = new AccelerateInterpolator();
 
     private float mMoveDistanceToTrigger;
 
@@ -105,6 +110,10 @@ public class  MultiCardMenu extends FrameLayout {
 
     private float mTouchingViewOriginY;
 
+    private Context mContext;
+
+    private int mBackgroundRid;
+
     public MultiCardMenu(Context context) {
         this(context,null);
     }
@@ -115,6 +124,7 @@ public class  MultiCardMenu extends FrameLayout {
 
     public MultiCardMenu(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mContext = context;
         ViewConfiguration vc = ViewConfiguration.get(context);
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
         mMinVelocity = vc.getScaledMinimumFlingVelocity() * 8;
@@ -125,21 +135,21 @@ public class  MultiCardMenu extends FrameLayout {
         mTitleBarHeightDisplay = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_display, dip2px(DEFAULT_TITLE_BAR_HEIGHT_DISPLAY));
         mMarginTop = a.getDimension(R.styleable.MultiCardMenu_margin_top, dip2px(DEFAULT_CARD_MARGIN_TOP));
         mMoveDistanceToTrigger = a.getDimension(R.styleable.MultiCardMenu_move_distance_to_trigger,dip2px(DEFAULT_MOVE_DISTANCE_TO_TRIGGER));
-        int mBackgroundRid = a.getResourceId(R.styleable.MultiCardMenu_background_layout,-1);
+        mBackgroundRid = a.getResourceId(R.styleable.MultiCardMenu_background_layout,-1);
         mDuration = a.getInt(R.styleable.MultiCardMenu_animator_duration,DEFAULT_DURATION);
         isFade = a.getBoolean(R.styleable.MultiCardMenu_fade,true);
         mBoundary = a.getBoolean(R.styleable.MultiCardMenu_boundary,false);
         a.recycle();
+        initBackgroundView();
+    }
+
+    private void initBackgroundView() {
         if(mBackgroundRid != -1) {
-            if(isFade) {
-                mDarkFrameLayout = new DarkFrameLayout(context);
-                mDarkFrameLayout.addView(LayoutInflater.from(context).inflate(mBackgroundRid, null));
-                addView(mDarkFrameLayout);
-                mDarkFrameLayout.setMultiMenu(this);
-            }else {
-                LayoutInflater.from(context).inflate(mBackgroundRid, this);
-            }
+            mDarkFrameLayout = new DarkFrameLayout(mContext);
+            mDarkFrameLayout.addView(LayoutInflater.from(mContext).inflate(mBackgroundRid, null));
             isExistBackground = true;
+            mDarkFrameLayout.setMultiCardMenu(this);
+            addView(mDarkFrameLayout);
         }
     }
 
@@ -175,7 +185,6 @@ public class  MultiCardMenu extends FrameLayout {
         }
     }
 
-    //TODO support listview
 
     @Override
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
@@ -210,6 +219,8 @@ public class  MultiCardMenu extends FrameLayout {
                         + mTitleBarHeightNoDisplay * i)) {
                     whichCardOnTouch = i-1;
                     isTouchOnCard = true;
+                    if(mOnDisplayOrHideListener != null)
+                        mOnDisplayOrHideListener.onTouchCard(whichCardOnTouch);
                     isConsume = true;
                     break;
                 }
@@ -232,10 +243,12 @@ public class  MultiCardMenu extends FrameLayout {
         return isConsume;
     }
 
+
     private void handleActionMove(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
         computeVelocity();
         if(Math.abs(yVelocity) < Math.abs(xVelocity)) return;
+
         if(!isDragging && Math.abs(event.getY() - firstDownY) > mTouchSlop
                 && Math.abs(event.getX() - firstDownX) < mTouchSlop) {
             isDragging = true;
@@ -259,6 +272,7 @@ public class  MultiCardMenu extends FrameLayout {
                 }
             }
         }
+
     }
 
     private void handleActionUp(MotionEvent event) {
@@ -284,9 +298,7 @@ public class  MultiCardMenu extends FrameLayout {
             }else if(currentY > (mMarginTop + mMoveDistanceToTrigger)) {
                 hideCard(mDisplayingCard);
             }
-        }/*else if(!isDisplaying && event.getY() > ViewHelper.getY(getChildAt(whichCardOnTouch))
-                 && event.getY() < ViewHelper.getY(getChildAt(whichCardOnTouch)) + mTitleBarHeightNoDisplay) {
-        }*/
+        }
         isTouchOnCard = false;
         deltaY = 0;
         isDragging = false;
@@ -357,7 +369,7 @@ public class  MultiCardMenu extends FrameLayout {
 
             }
         });
-        set.setInterpolator(mInterpolator);
+        set.setInterpolator(mOpenAnimatorInterpolator);
         set.playTogether(animators);
         set.start();
         isDisplaying = true;
@@ -419,7 +431,7 @@ public class  MultiCardMenu extends FrameLayout {
 
             }
         });
-        set.setInterpolator(mInterpolator);
+        set.setInterpolator(mCloseAnimatorInterpolator);
         set.playTogether(animators);
         set.start();
         mDisplayingCard = -1;
@@ -446,9 +458,8 @@ public class  MultiCardMenu extends FrameLayout {
         this.mOnDisplayOrHideListener = onDisplayOrHideListener;
     }
 
-    @SuppressWarnings("unused")
     public void setAnimatorInterpolator(Interpolator interpolator) {
-        this.mInterpolator = interpolator;
+        this.mOpenAnimatorInterpolator = interpolator;
     }
 
 
@@ -464,6 +475,114 @@ public class  MultiCardMenu extends FrameLayout {
         return isDisplaying;
     }
 
+    public void setBoundary(boolean boundary) {
+        this.mBoundary = boundary;
+    }
+
+    public boolean isBoundary() {
+        return mBoundary;
+    }
+
+    public boolean isFade() {
+        return isFade;
+    }
+
+    public void setFade(boolean isFade) {
+        this.isFade = isFade;
+    }
+
+    /**
+     *
+     * @return marginTop unit:dip
+     */
+    public int getMarginTop() {
+        return px2dip(mMarginTop);
+    }
+
+    /**
+     *
+     * @param marginTop unit:dip
+     */
+    public void setMarginTop(int marginTop) {
+        this.mMarginTop = dip2px(marginTop);
+    }
+
+
+    /**
+     *
+     * @return unit:dip
+     */
+    public int getTitleBarHeightNoDisplay() {
+        return px2dip(mTitleBarHeightNoDisplay);
+    }
+
+    /**
+     *
+     * @param titleBarHeightNoDisplay unit:dip
+     */
+    public void setTitleBarHeightNoDisplay(int titleBarHeightNoDisplay) {
+        this.mTitleBarHeightNoDisplay = dip2px(titleBarHeightNoDisplay);
+        requestLayout();
+    }
+
+    /**
+     *
+     * @return unit:dip
+     */
+    public int getTitleBarHeightDisplay() {
+        return px2dip(mTitleBarHeightDisplay);
+    }
+
+    /**
+     *
+     * @param titleBarHeightDisplay unit:dip
+     */
+    public void setTitleBarHeightDisplay(int titleBarHeightDisplay) {
+        this.mTitleBarHeightDisplay = titleBarHeightDisplay;
+        requestLayout();
+    }
+
+    /**
+     *
+     * @return unit:dip
+     */
+    public int getMoveDistanceToTrigger() {
+        return px2dip(mMoveDistanceToTrigger);
+    }
+
+    /**
+     *
+     * @param moveDistanceToTrigger unit:dip
+     */
+    public void setMoveDistanceToTrigger(int moveDistanceToTrigger) {
+        this.mMoveDistanceToTrigger = moveDistanceToTrigger;
+    }
+
+
+    public void setOpenAnimatorInterpolator(Interpolator interpolator) {
+        this.mOpenAnimatorInterpolator =  interpolator;
+    }
+
+    public void setCloseAnimatorInterpolator(Interpolator interpolator) {
+        this.mCloseAnimatorInterpolator = interpolator;
+    }
+
+    public Interpolator getOpenAnimatorInterpolator() {
+        return this.mOpenAnimatorInterpolator;
+    }
+
+    public Interpolator getCloseAnimatorInterpolator() {
+        return this.mCloseAnimatorInterpolator;
+    }
+
+    public void setAnimatorDuration(int duration) {
+        this.mDuration = duration;
+    }
+
+    public int getAnimatorDuration() {
+        return this.mDuration;
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         return isDragging;
@@ -474,7 +593,6 @@ public class  MultiCardMenu extends FrameLayout {
         return true;
     }
 
-    @SuppressWarnings("unused")
     private int px2dip(float pxVal) {
         return (int)(pxVal/mDensity + 0.5f);
     }
@@ -489,6 +607,8 @@ public class  MultiCardMenu extends FrameLayout {
         public void onDisplay(int which);
 
         public void onHide(int which);
+
+        public void onTouchCard(int which);
 
     }
 

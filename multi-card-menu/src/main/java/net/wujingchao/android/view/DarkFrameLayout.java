@@ -14,13 +14,13 @@ import android.widget.FrameLayout;
  */
 class DarkFrameLayout extends FrameLayout {
 
-    public final static int MAX_ALPHA = 0x7f;
+    public final static int MAX_ALPHA = 0x9f;
 
     private Paint mFadePaint;
 
     private int alpha = 0x00;
 
-    private MultiCardMenu multiMenu;
+    private MultiCardMenu mMultiCardMenu;
 
     public DarkFrameLayout(Context context) {
         this(context, null);
@@ -38,7 +38,7 @@ class DarkFrameLayout extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return multiMenu.isDisplaying();
+        return mMultiCardMenu.isDisplaying();
     }
 
     @Override
@@ -62,8 +62,8 @@ class DarkFrameLayout extends FrameLayout {
         invalidate();
     }
 
-    public void setMultiMenu(MultiCardMenu multiMenu) {
-        this.multiMenu = multiMenu;
+    public void setMultiCardMenu(MultiCardMenu multiCardMenu) {
+        this.mMultiCardMenu = multiCardMenu;
     }
 
 }
