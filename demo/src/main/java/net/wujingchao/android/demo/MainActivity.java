@@ -68,7 +68,8 @@ public class MainActivity extends ActionBarActivity {
                 mc.setBoundary(isChecked);
             }
         });
-        int [] imgRes = {R.drawable.ent,R.drawable.qa};
+//        int [] imgRes = {R.drawable.ent,R.drawable.qa};
+        int [] imgRes = {R.drawable.nuan1,R.drawable.nuan2};
         final List<ImageView> imageViews = new LinkedList<>();
         ImageView imageView;
         for(Integer i :imgRes) {

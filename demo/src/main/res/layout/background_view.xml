@@ -10,14 +10,17 @@
         android:layout_height="wrap_content">
 
         <TableRow>
-
             <CheckBox
+                android:layout_weight="1"
+                android:shadowColor="#A12F2F"
                 android:id="@+id/fade"
                 android:textColor="#2B2B2B"
                 android:checked="true"
                 android:text="fade"/>
 
             <CheckBox
+                android:layout_weight="1"
+                android:shadowColor="#A12F2F"
                 android:checked="true"
                 android:id="@+id/boundary"
                 android:textColor="#2B2B2B"
@@ -29,28 +32,28 @@
             <Button
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
-                android:textColor="#709FC3"
+                android:textColor="#000000"
                 android:layout_height="wrap_content"
                 android:text="One"
                 android:onClick="one"/>
             <Button
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
-                android:textColor="#709FC3"
+                android:textColor="#000000"
                 android:layout_height="wrap_content"
                 android:text="Two"
                 android:onClick="two"/>
             <Button
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
-                android:textColor="#709FC3"
+                android:textColor="#000000"
                 android:layout_height="wrap_content"
                 android:text="Three"
                 android:onClick="three"/>
             <Button
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
-                android:textColor="#709FC3"
+                android:textColor="#000000"
                 android:layout_height="wrap_content"
                 android:text="Four"
                 android:onClick="four"/>

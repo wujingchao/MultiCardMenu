@@ -54,7 +54,7 @@
                    android:background="@drawable/title_bar"
                    android:textColor="@color/title_bar_text"
                    android:gravity="center_vertical"
-                   android:text="Destiny"
+                   android:text="Kitkat"
                    android:textStyle="bold"
                    android:textSize="20sp"
                    android:paddingLeft="10dp"/>
@@ -67,12 +67,16 @@
                        <TableRow
                            android:layout_weight="1">
                            <Button
+                               android:layout_margin="2dip"
                                android:textColor="#BABABA"
+                               android:background="#000000"
                                android:layout_weight="1"
                                android:layout_height="match_parent"
                                android:text="Blue"
                                android:onClick="blue"/>
                            <Button
+                               android:layout_margin="2dip"
+                               android:background="#000000"
                                android:textColor="#BABABA"
                                android:layout_height="match_parent"
                                android:layout_weight="1"
@@ -82,11 +86,15 @@
                        <TableRow
                            android:layout_weight="1">
                            <Button
+                               android:layout_margin="2dip"
+                               android:background="#000000"
                                android:textColor="#BABABA"
                                android:layout_height="match_parent"
                                android:layout_weight="1"
                                android:text="Hope"/>
                            <Button
+                               android:layout_margin="2dip"
+                               android:background="#000000"
                                android:textColor="#BABABA"
                                android:layout_height="match_parent"
                                android:layout_weight="1"
@@ -105,7 +113,7 @@
                 android:background="@drawable/title_bar"
                 android:textColor="@color/title_bar_text"
                 android:gravity="center_vertical"
-                android:text="Rainbow"
+                android:text="Jelly Bean"
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:paddingLeft="10dp"/>
@@ -128,7 +136,7 @@
                 android:background="@drawable/title_bar"
                 android:textColor="@color/title_bar_text"
                 android:gravity="center_vertical"
-                android:text="Eternity"
+                android:text="Ice Cream"
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:paddingLeft="10dp"/>
