@@ -2,7 +2,6 @@ package net.wujingchao.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -187,7 +186,7 @@ public class  MultiCardMenu extends FrameLayout {
 
 
     @Override
-    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
         initVelocityTracker(event);
         boolean isConsume = false;
         switch (event.getAction()){
@@ -589,7 +588,7 @@ public class  MultiCardMenu extends FrameLayout {
     }
 
     @Override
-    public boolean onTouchEvent(@NonNull MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) {
         return true;
     }
 
