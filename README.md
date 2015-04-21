@@ -1,7 +1,7 @@
 # MultiCardMenu
- A card menu that can open and close with animation on android.It base on nineoldandroid ,thank about it.
+ A multicard menu that can open and close with animation on android.It base on [nineoldandroid] [1] ,thank about it.
 
-## Demo
+## Demo 
 
    <img src="./multi_card_menu_demo_static.png"  width="401" heigit="638" alt="Screenshot"/>
 
@@ -36,10 +36,31 @@
 	
 ### Quick Start
 
-Just import it to your project as a module in Android Studio.
+####Gradle:
+
+	compile 'net.wujingchao.android.view:multi-card-menu:0.9.0'
+
+####Maven:
+	
+	<dependency>
+		<groupId>net.wujingchao.android.view</groupId>
+		<artifactId>multi-card-menu</artifactId>
+		<version>0.9.0</version>
+		<type>aar</type>
+	</dependency>
+
+####Ivy
+
+	<dependency org='multi-card-menu' name='net.wujingchao.android.view' rev='0.9.0'>
+		<artifact name='net.wujingchao.android.view' ext='aar'></artifact>
+	</dependency>
 
 
-######You can mail me => wujingchao@aliyun.com
+##Developed By
+
+
+- wujingchao -  wujingchao@aliyun.com
+
 
 
 
@@ -58,3 +79,5 @@ License
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+[1]: https://github.com/JakeWharton/NineOldAndroids
