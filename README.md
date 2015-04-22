@@ -6,7 +6,7 @@
    <img src="./multi_card_menu_demo_static.png"  width="401" heigit="638" alt="Screenshot"/>
 
 
-#####Warning:The childview not support Listview,Scrollview...now!(pretty soon)
+#####Warning:The childview don't support Listview,Scrollview...now!(pretty soon)
 <br/>
 <p>
    <img src="./multi_card_menu_demo.gif"  width="401" heigit="638" alt="Screenshot"/>
