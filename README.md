@@ -6,7 +6,6 @@
    <img src="./multi_card_menu_demo_static.png"  width="401" heigit="638" alt="Screenshot"/>
 
 
-#####Warning:The childview don't support Listview,Scrollview...now!(pretty soon)
 <br/>
 <p>
    <img src="./multi_card_menu_demo.gif"  width="401" heigit="638" alt="Screenshot"/>
@@ -38,20 +37,20 @@
 
 ####Gradle:
 
-	compile 'net.wujingchao.android.view:multi-card-menu:0.9.0'
+	compile 'net.wujingchao.android.view:multi-card-menu:0.9.3'
 
 ####Maven:
 	
 	<dependency>
 		<groupId>net.wujingchao.android.view</groupId>
 		<artifactId>multi-card-menu</artifactId>
-		<version>0.9.0</version>
+		<version>0.9.3</version>
 		<type>aar</type>
 	</dependency>
 
 ####Ivy
 
-	<dependency org='multi-card-menu' name='net.wujingchao.android.view' rev='0.9.0'>
+	<dependency org='multi-card-menu' name='net.wujingchao.android.view' rev='0.9.3'>
 		<artifact name='net.wujingchao.android.view' ext='aar'></artifact>
 	</dependency>
 

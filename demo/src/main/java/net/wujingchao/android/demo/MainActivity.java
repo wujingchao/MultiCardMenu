@@ -100,8 +100,8 @@ public class MainActivity extends ActionBarActivity {
                 return imageViews.get(position);
             }
         });
-//        ListView listView = (ListView) findViewById(R.id.lv);
-//        listView.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data));
+        ListView listView = (ListView) findViewById(R.id.lv);
+        listView.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data));
 
     }
 

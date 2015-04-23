@@ -32,16 +32,126 @@
                  android:textSize="20sp"
                  android:paddingLeft="10dp"/>
 
-             <FrameLayout
+             <ScrollView
                  android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-                 android:background="#7FAAAAAA">
-                 <ImageView
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:src="@drawable/ic_launcher"/>
+                 android:layout_height="match_parent">
+                     <LinearLayout
+                         android:orientation="vertical"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:background="#FBF5E7">
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="I'm a ScrollView"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
+                         <TextView
+                             android:gravity="center"
+                             android:background="#CDA49E"
+                             android:layout_width="match_parent"
+                             android:layout_height="50dip"
+                             android:text="For The Dream"
+                             android:textSize="20sp"
+                             android:textColor="#471F1F"
+                             android:layout_margin="5dip"/>
 
-             </FrameLayout>
+
+                     </LinearLayout>
+                 </ScrollView>
          </LinearLayout>
 
        <LinearLayout
@@ -118,10 +228,11 @@
                 android:textSize="20sp"
                 android:paddingLeft="10dp"/>
 
-            <SeekBar
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                <ListView
+                    android:background="#E0A09E"
+                    android:id="@+id/lv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
 
         </LinearLayout>
 

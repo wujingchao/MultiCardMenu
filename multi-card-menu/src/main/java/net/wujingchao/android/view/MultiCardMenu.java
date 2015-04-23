@@ -2,15 +2,19 @@ package net.wujingchao.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.AbsListView;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorSet;
@@ -24,7 +28,6 @@ import java.util.List;
 /**
  * @author wujingchao  2015-04-01 email:wujingchao@aliyun.com
  *
- * TODO support listview scrollview
  */
 @SuppressWarnings("unused")
 public class  MultiCardMenu extends FrameLayout {
@@ -245,9 +248,9 @@ public class  MultiCardMenu extends FrameLayout {
 
     private void handleActionMove(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
+        if(supportScrollInView((int) (firstDownY - event.getY()))) return;
         computeVelocity();
         if(Math.abs(yVelocity) < Math.abs(xVelocity)) return;
-
         if(!isDragging && Math.abs(event.getY() - firstDownY) > mTouchSlop
                 && Math.abs(event.getX() - firstDownX) < mTouchSlop) {
             isDragging = true;
@@ -302,6 +305,102 @@ public class  MultiCardMenu extends FrameLayout {
         deltaY = 0;
         isDragging = false;
     }
+
+
+    /**
+     * @param direction Negative to check scrolling up, positive to check
+     *                  scrolling down.
+     * @return true if need dispatch touch event to child view,otherwise
+     */
+    private boolean supportScrollInView(int direction) {
+        View view = getChildAt(whichCardOnTouch);
+        if(view instanceof ViewGroup){
+            View childView = findTopChildUnder((ViewGroup)view,firstDownX,firstDownY);
+            if(childView == null) return false;
+            if(childView instanceof AbsListView){
+                AbsListView absListView = (AbsListView)childView;
+                if(Build.VERSION.SDK_INT >= 19) {
+                    return absListView.canScrollList(direction);
+                }else {
+                    return absListViewCanScrollList(absListView,direction);
+                }
+            }else if(childView instanceof ScrollView) {
+                ScrollView scrollView = (ScrollView) childView;
+                if(Build.VERSION.SDK_INT >= 14) {
+                    return scrollView.canScrollVertically(direction);
+                }else {
+                    return scrollViewCanScrollVertically(scrollView,direction);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Copy From AbsListView (API Level >= 19)
+     * @param absListView AbsListView
+     * @param direction Negative to check scrolling up, positive to check
+     *                  scrolling down.
+     * @return true if the list can be scrolled in the specified direction,
+     *         false otherwise
+     */
+    public boolean absListViewCanScrollList(AbsListView absListView,int direction) {
+        final int childCount = absListView.getChildCount();
+        if (childCount == 0) {
+            return false;
+        }
+        final int firstPosition = absListView.getFirstVisiblePosition();
+        if (direction > 0) {//can scroll down
+            final int lastBottom = absListView.getChildAt(childCount - 1).getBottom();
+            final int lastPosition = firstPosition + childCount;
+            return lastPosition < absListView.getCount() || lastBottom > absListView.getHeight() - absListView.getPaddingTop();
+        } else {//can scroll  up
+            final int firstTop = absListView.getChildAt(0).getTop();
+            return firstPosition > 0 || firstTop < absListView.getPaddingTop();
+        }
+    }
+
+    /**
+     *  Copy From ScrollView (API Level >= 14)
+     * @param scrollView
+     * @param direction
+     * @return
+     */
+    private  boolean scrollViewCanScrollVertically(ScrollView scrollView,int direction) {
+        final int offset = Math.max(0, scrollView.getScrollY());
+        final int range = computeVerticalScrollRange(scrollView) - scrollView.getHeight();
+        if (range == 0) return false;
+        if (direction < 0) { //scroll up
+            return offset > 0;
+        } else {//scroll down
+            return offset < range - 1;
+        }
+    }
+
+    /**
+     * Copy From ScrollView (API Level >= 14)
+     * <p>The scroll range of a scroll view is the overall height of all of its
+     * children.</p>
+     */
+    protected int computeVerticalScrollRange(ScrollView scrollView) {
+        final int count = scrollView.getChildCount();
+        final int contentHeight = scrollView.getHeight() - scrollView.getPaddingBottom() - scrollView.getPaddingTop();
+        if (count == 0) {
+            return contentHeight;
+        }
+
+        int scrollRange = scrollView.getChildAt(0).getBottom();
+        final int scrollY = scrollView.getScrollY();
+        final int overscrollBottom = Math.max(0, scrollRange - contentHeight);
+        if (scrollY < 0) {
+            scrollRange -= scrollY;
+        } else if (scrollY > overscrollBottom) {
+            scrollRange += scrollY - overscrollBottom;
+        }
+
+        return scrollRange;
+    }
+
 
     private double distance(float x1, float y1, float x2, float y2) {
         float deltaX = x2 - x1;
@@ -436,6 +535,19 @@ public class  MultiCardMenu extends FrameLayout {
         mDisplayingCard = -1;
         if(mOnDisplayOrHideListener != null)
             mOnDisplayOrHideListener.onHide(isExistBackground ? (which - 1) : which);
+    }
+
+
+    private View findTopChildUnder(ViewGroup parentView,float x, float y) {
+        final int childCount = parentView.getChildCount();
+        for (int i = childCount - 1; i >= 0; i--) {
+            final View child = parentView.getChildAt(i);
+            if (x >= child.getLeft() && x < child.getRight() &&
+                    y >= child.getTop() && y < child.getBottom()) {
+                return child;
+            }
+        }
+        return null;
     }
 
     public void show(int index) {
