@@ -362,9 +362,10 @@ public class  MultiCardMenu extends FrameLayout {
 
     /**
      *  Copy From ScrollView (API Level >= 14)
-     * @param scrollView
-     * @param direction
-     * @return
+     * @param direction Negative to check scrolling up, positive to check
+     *                  scrolling down.
+     *   @return true if the scrollView can be scrolled in the specified direction,
+     *         false otherwise
      */
     private  boolean scrollViewCanScrollVertically(ScrollView scrollView,int direction) {
         final int offset = Math.max(0, scrollView.getScrollY());
