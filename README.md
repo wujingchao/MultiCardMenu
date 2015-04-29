@@ -1,7 +1,7 @@
 # MultiCardMenu
  A multicard menu that can open and close with animation on android.It base on [nineoldandroid] [1] ,thank about it.
 
-## <a href="./demo.apk">Demo</a>
+## <a href="https://raw.githubusercontent.com/wujingchao/MultiCardMenu/master/demo.apk">Demo</a>
 
    <img src="https://raw.githubusercontent.com/wujingchao/MultiCardMenu/master/multi_card_menu_demo_static.png"  width="401" heigit="638" alt="Screenshot"/>
 
