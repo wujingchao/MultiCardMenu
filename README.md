@@ -3,12 +3,12 @@
 
 ## <a href="./demo.apk">Demo</a>
 
-   <img src="./multi_card_menu_demo_static.png"  width="401" heigit="638" alt="Screenshot"/>
+   <img src="https://raw.githubusercontent.com/wujingchao/MultiCardMenu/master/multi_card_menu_demo_static.png"  width="401" heigit="638" alt="Screenshot"/>
 
 
 <br/>
 <p>
-   <img src="./multi_card_menu_demo.gif"  width="401" heigit="638" alt="Screenshot"/>
+   <img src="https://raw.githubusercontent.com/wujingchao/MultiCardMenu/master/multi_card_menu_demo.gif"  width="401" heigit="638" alt="Screenshot"/>
 </p>
 
 <br/>
