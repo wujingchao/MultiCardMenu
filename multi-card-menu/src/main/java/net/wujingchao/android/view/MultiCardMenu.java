@@ -32,19 +32,19 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class  MultiCardMenu extends FrameLayout {
 
-    private final static String TAG = "MultiCardMenu";
+    public static final String TAG = "MultiCardMenu";
 
-    private final static int DEFAULT_CARD_MARGIN_TOP = 0;
+    private static final int DEFAULT_CARD_MARGIN_TOP = 0;
 
-    private final static int DEFAULT_TITLE_BAR_HEIGHT_NO_DISPLAY = 60;
+    private static final int DEFAULT_TITLE_BAR_HEIGHT_NO_DISPLAY = 60;
 
-    private final static int DEFAULT_TITLE_BAR_HEIGHT_DISPLAY = 20;
+    private static final int DEFAULT_TITLE_BAR_HEIGHT_DISPLAY = 20;
 
-    private final static int DEFAULT_MOVE_DISTANCE_TO_TRIGGER = 30;
+    private static final int DEFAULT_MOVE_DISTANCE_TO_TRIGGER = 30;
 
-    private final static int DEFAULT_DURATION = 250;
+    private static final int DEFAULT_DURATION = 250;
 
-    private final static int MAX_CLICK_TIME = 300;
+    private static final int MAX_CLICK_TIME = 300;
 
     private static float MAX_CLICK_DISTANCE = 5;
 
@@ -145,14 +145,173 @@ public class  MultiCardMenu extends FrameLayout {
         initBackgroundView();
     }
 
-    private void initBackgroundView() {
-        if(mBackgroundRid != -1) {
-            mDarkFrameLayout = new DarkFrameLayout(mContext);
-            mDarkFrameLayout.addView(LayoutInflater.from(mContext).inflate(mBackgroundRid, null));
-            isExistBackground = true;
-            mDarkFrameLayout.setMultiCardMenu(this);
-            addView(mDarkFrameLayout);
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        initVelocityTracker(event);
+        boolean isConsume = false;
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                isConsume = handleActionDown(event);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                handleActionMove(event);
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                handleActionUp(event);
+                releaseVelocityTracker();
+                break;
         }
+        return isConsume || super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return isDragging;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
+
+    public void show(int index) {
+        if (isExistBackground)index ++;
+        if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
+        displayCard(index);
+    }
+
+    public void hide(int index) {
+        if(isExistBackground) index ++;
+        if(index != mDisplayingCard || !isDisplaying) return;
+        if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
+        hideCard(index);
+    }
+
+    public void setOnDisplayOrHideListener(OnDisplayOrHideListener onDisplayOrHideListener) {
+        this.mOnDisplayOrHideListener = onDisplayOrHideListener;
+    }
+
+    public void setAnimatorInterpolator(Interpolator interpolator) {
+        this.mOpenAnimatorInterpolator = interpolator;
+    }
+
+    /**
+     *
+     * @return less than 0 :No Display Card
+     */
+    public int getDisplayingCard() {
+        return isExistBackground ? (mDisplayingCard - 1) : mDisplayingCard;
+    }
+
+    public boolean isDisplaying() {
+        return isDisplaying;
+    }
+
+    public void setBoundary(boolean boundary) {
+        this.mBoundary = boundary;
+    }
+
+    public boolean isBoundary() {
+        return mBoundary;
+    }
+
+    public boolean isFade() {
+        return isFade;
+    }
+
+    public void setFade(boolean isFade) {
+        this.isFade = isFade;
+    }
+
+    /**
+     *
+     * @return marginTop unit:dip
+     */
+    public int getMarginTop() {
+        return px2dip(mMarginTop);
+    }
+
+    /**
+     *
+     * @param marginTop unit:dip
+     */
+    public void setMarginTop(int marginTop) {
+        this.mMarginTop = dip2px(marginTop);
+    }
+
+    /**
+     *
+     * @return unit:dip
+     */
+    public int getTitleBarHeightNoDisplay() {
+        return px2dip(mTitleBarHeightNoDisplay);
+    }
+
+    /**
+     *
+     * @param titleBarHeightNoDisplay unit:dip
+     */
+    public void setTitleBarHeightNoDisplay(int titleBarHeightNoDisplay) {
+        this.mTitleBarHeightNoDisplay = dip2px(titleBarHeightNoDisplay);
+        requestLayout();
+    }
+
+    /**
+     *
+     * @return unit:dip
+     */
+    public int getTitleBarHeightDisplay() {
+        return px2dip(mTitleBarHeightDisplay);
+    }
+
+    /**
+     *
+     * @param titleBarHeightDisplay unit:dip
+     */
+    public void setTitleBarHeightDisplay(int titleBarHeightDisplay) {
+        this.mTitleBarHeightDisplay = titleBarHeightDisplay;
+        requestLayout();
+    }
+
+    /**
+     *
+     * @return unit:dip
+     */
+    public int getMoveDistanceToTrigger() {
+        return px2dip(mMoveDistanceToTrigger);
+    }
+
+    /**
+     *
+     * @param moveDistanceToTrigger unit:dip
+     */
+    public void setMoveDistanceToTrigger(int moveDistanceToTrigger) {
+        this.mMoveDistanceToTrigger = moveDistanceToTrigger;
+    }
+
+    public void setOpenAnimatorInterpolator(Interpolator interpolator) {
+        this.mOpenAnimatorInterpolator =  interpolator;
+    }
+
+    public void setCloseAnimatorInterpolator(Interpolator interpolator) {
+        this.mCloseAnimatorInterpolator = interpolator;
+    }
+
+    public Interpolator getOpenAnimatorInterpolator() {
+        return this.mOpenAnimatorInterpolator;
+    }
+
+    public Interpolator getCloseAnimatorInterpolator() {
+        return this.mCloseAnimatorInterpolator;
+    }
+
+    public void setAnimatorDuration(int duration) {
+        this.mDuration = duration;
+    }
+
+    public int getAnimatorDuration() {
+        return this.mDuration;
     }
 
     @Override
@@ -172,6 +331,16 @@ public class  MultiCardMenu extends FrameLayout {
         }
     }
 
+    private void initBackgroundView() {
+        if(mBackgroundRid != -1) {
+            mDarkFrameLayout = new DarkFrameLayout(mContext);
+            mDarkFrameLayout.addView(LayoutInflater.from(mContext).inflate(mBackgroundRid, null));
+            isExistBackground = true;
+            mDarkFrameLayout.setMultiCardMenu(this);
+            addView(mDarkFrameLayout);
+        }
+    }
+
     private void initVelocityTracker(MotionEvent event) {
         if(mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
@@ -185,27 +354,6 @@ public class  MultiCardMenu extends FrameLayout {
             mVelocityTracker.recycle();
             mVelocityTracker = null;
         }
-    }
-
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        initVelocityTracker(event);
-        boolean isConsume = false;
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                isConsume = handleActionDown(event);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                handleActionMove(event);
-                break;
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-                handleActionUp(event);
-                releaseVelocityTracker();
-                break;
-        }
-        return isConsume || super.dispatchTouchEvent(event);
     }
 
     private boolean handleActionDown(MotionEvent event) {
@@ -244,7 +392,6 @@ public class  MultiCardMenu extends FrameLayout {
         }
         return isConsume;
     }
-
 
     private void handleActionMove(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
@@ -306,7 +453,6 @@ public class  MultiCardMenu extends FrameLayout {
         isDragging = false;
     }
 
-
     /**
      * @param direction Negative to check scrolling up, positive to check
      *                  scrolling down.
@@ -344,7 +490,7 @@ public class  MultiCardMenu extends FrameLayout {
      * @return true if the list can be scrolled in the specified direction,
      *         false otherwise
      */
-    public boolean absListViewCanScrollList(AbsListView absListView,int direction) {
+    private boolean absListViewCanScrollList(AbsListView absListView,int direction) {
         final int childCount = absListView.getChildCount();
         if (childCount == 0) {
             return false;
@@ -383,7 +529,7 @@ public class  MultiCardMenu extends FrameLayout {
      * <p>The scroll range of a scroll view is the overall height of all of its
      * children.</p>
      */
-    protected int computeVerticalScrollRange(ScrollView scrollView) {
+    private int computeVerticalScrollRange(ScrollView scrollView) {
         final int count = scrollView.getChildCount();
         final int contentHeight = scrollView.getHeight() - scrollView.getPaddingBottom() - scrollView.getPaddingTop();
         if (count == 0) {
@@ -401,7 +547,6 @@ public class  MultiCardMenu extends FrameLayout {
 
         return scrollRange;
     }
-
 
     private double distance(float x1, float y1, float x2, float y2) {
         float deltaX = x2 - x1;
@@ -477,7 +622,6 @@ public class  MultiCardMenu extends FrameLayout {
             mOnDisplayOrHideListener.onDisplay(isExistBackground ? (which - 1) : which);
     }
 
-
     private void hideCard(int which) {
         if(isAnimating)return;
         List<Animator> animators = new ArrayList<>(mChildCount);
@@ -538,7 +682,6 @@ public class  MultiCardMenu extends FrameLayout {
             mOnDisplayOrHideListener.onHide(isExistBackground ? (which - 1) : which);
     }
 
-
     private View findTopChildUnder(ViewGroup parentView,float x, float y) {
         final int childCount = parentView.getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
@@ -551,160 +694,6 @@ public class  MultiCardMenu extends FrameLayout {
         return null;
     }
 
-    public void show(int index) {
-        if (isExistBackground)index ++;
-        if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
-        displayCard(index);
-    }
-
-
-
-    public void hide(int index) {
-        if(isExistBackground) index ++;
-        if(index != mDisplayingCard || !isDisplaying) return;
-        if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
-        hideCard(index);
-    }
-
-    public void setOnDisplayOrHideListener(OnDisplayOrHideListener onDisplayOrHideListener) {
-        this.mOnDisplayOrHideListener = onDisplayOrHideListener;
-    }
-
-    public void setAnimatorInterpolator(Interpolator interpolator) {
-        this.mOpenAnimatorInterpolator = interpolator;
-    }
-
-
-    /**
-     *
-     * @return less than 0 :No Display Card
-     */
-    public int getDisplayingCard() {
-        return isExistBackground ? (mDisplayingCard - 1) : mDisplayingCard;
-    }
-
-    public boolean isDisplaying() {
-        return isDisplaying;
-    }
-
-    public void setBoundary(boolean boundary) {
-        this.mBoundary = boundary;
-    }
-
-    public boolean isBoundary() {
-        return mBoundary;
-    }
-
-    public boolean isFade() {
-        return isFade;
-    }
-
-    public void setFade(boolean isFade) {
-        this.isFade = isFade;
-    }
-
-    /**
-     *
-     * @return marginTop unit:dip
-     */
-    public int getMarginTop() {
-        return px2dip(mMarginTop);
-    }
-
-    /**
-     *
-     * @param marginTop unit:dip
-     */
-    public void setMarginTop(int marginTop) {
-        this.mMarginTop = dip2px(marginTop);
-    }
-
-
-    /**
-     *
-     * @return unit:dip
-     */
-    public int getTitleBarHeightNoDisplay() {
-        return px2dip(mTitleBarHeightNoDisplay);
-    }
-
-    /**
-     *
-     * @param titleBarHeightNoDisplay unit:dip
-     */
-    public void setTitleBarHeightNoDisplay(int titleBarHeightNoDisplay) {
-        this.mTitleBarHeightNoDisplay = dip2px(titleBarHeightNoDisplay);
-        requestLayout();
-    }
-
-    /**
-     *
-     * @return unit:dip
-     */
-    public int getTitleBarHeightDisplay() {
-        return px2dip(mTitleBarHeightDisplay);
-    }
-
-    /**
-     *
-     * @param titleBarHeightDisplay unit:dip
-     */
-    public void setTitleBarHeightDisplay(int titleBarHeightDisplay) {
-        this.mTitleBarHeightDisplay = titleBarHeightDisplay;
-        requestLayout();
-    }
-
-    /**
-     *
-     * @return unit:dip
-     */
-    public int getMoveDistanceToTrigger() {
-        return px2dip(mMoveDistanceToTrigger);
-    }
-
-    /**
-     *
-     * @param moveDistanceToTrigger unit:dip
-     */
-    public void setMoveDistanceToTrigger(int moveDistanceToTrigger) {
-        this.mMoveDistanceToTrigger = moveDistanceToTrigger;
-    }
-
-
-    public void setOpenAnimatorInterpolator(Interpolator interpolator) {
-        this.mOpenAnimatorInterpolator =  interpolator;
-    }
-
-    public void setCloseAnimatorInterpolator(Interpolator interpolator) {
-        this.mCloseAnimatorInterpolator = interpolator;
-    }
-
-    public Interpolator getOpenAnimatorInterpolator() {
-        return this.mOpenAnimatorInterpolator;
-    }
-
-    public Interpolator getCloseAnimatorInterpolator() {
-        return this.mCloseAnimatorInterpolator;
-    }
-
-    public void setAnimatorDuration(int duration) {
-        this.mDuration = duration;
-    }
-
-    public int getAnimatorDuration() {
-        return this.mDuration;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return isDragging;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return true;
-    }
-
     private int px2dip(float pxVal) {
         return (int)(pxVal/mDensity + 0.5f);
     }
@@ -712,7 +701,6 @@ public class  MultiCardMenu extends FrameLayout {
     private int dip2px(int dipVal) {
         return (int)(dipVal * mDensity + 0.5f);
     }
-
 
     public interface OnDisplayOrHideListener {
 

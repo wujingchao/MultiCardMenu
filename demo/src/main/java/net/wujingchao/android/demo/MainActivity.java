@@ -25,7 +25,7 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    private final static String TAG = "MainActivity";
+    private static final String TAG = "MainActivity";
 
     MultiCardMenu mc;
 
