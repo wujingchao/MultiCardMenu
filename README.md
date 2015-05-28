@@ -40,20 +40,13 @@
 	compile 'net.wujingchao.android.view:multi-card-menu:0.9.3'
 
 ####Maven:
-	
+	<!-- you should configure jcenter repository-->
 	<dependency>
 		<groupId>net.wujingchao.android.view</groupId>
 		<artifactId>multi-card-menu</artifactId>
 		<version>0.9.3</version>
 		<type>aar</type>
 	</dependency>
-
-####Ivy
-
-	<dependency org='multi-card-menu' name='net.wujingchao.android.view' rev='0.9.3'>
-		<artifact name='net.wujingchao.android.view' ext='aar'></artifact>
-	</dependency>
-
 
 ##Developed By
 
