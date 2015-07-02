@@ -1,3 +1,5 @@
+[![Android Gems](http://www.android-gems.com/badge/wujingchao/MultiCardMenu.svg?branch=master)](http://www.android-gems.com/lib/wujingchao/MultiCardMenu)
+
 # MultiCardMenu
  A multicard menu that can open and close with animation on android.It base on [nineoldandroid] [1] ,thank about it.
 
