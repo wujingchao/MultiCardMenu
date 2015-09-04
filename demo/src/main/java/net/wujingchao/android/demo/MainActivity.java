@@ -2,28 +2,24 @@ package net.wujingchao.android.demo;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SeekBar;
 import android.widget.Toast;
-
 import net.wujingchao.android.view.MultiCardMenu;
-
 import java.util.LinkedList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -69,7 +65,8 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 //        int [] imgRes = {R.drawable.ent,R.drawable.qa};
-        int [] imgRes = {R.drawable.nuan1,R.drawable.nuan2};
+        int [] imgRes = {R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher,
+                R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher};
         final List<ImageView> imageViews = new LinkedList<>();
         ImageView imageView;
         for(Integer i :imgRes) {
@@ -101,7 +98,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
         ListView listView = (ListView) findViewById(R.id.lv);
-        listView.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,data));
+        listView.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,data));
 
     }
 

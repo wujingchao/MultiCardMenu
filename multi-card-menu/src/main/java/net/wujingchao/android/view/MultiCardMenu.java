@@ -3,7 +3,9 @@ package net.wujingchao.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -33,6 +35,8 @@ import java.util.List;
 public class  MultiCardMenu extends FrameLayout {
 
     public static final String TAG = "MultiCardMenu";
+
+    private static final boolean DEBUG = true;
 
     private static final int DEFAULT_CARD_MARGIN_TOP = 0;
 
@@ -94,8 +98,6 @@ public class  MultiCardMenu extends FrameLayout {
 
     private OnDisplayOrHideListener mOnDisplayOrHideListener;
 
-    private boolean isExistBackground = false;
-
     private int mDuration;
 
     private boolean isAnimating = false;
@@ -117,7 +119,7 @@ public class  MultiCardMenu extends FrameLayout {
     private int mBackgroundRid;
 
     public MultiCardMenu(Context context) {
-        this(context,null);
+        this(context, null);
     }
 
     public MultiCardMenu(Context context, AttributeSet attrs) {
@@ -127,12 +129,12 @@ public class  MultiCardMenu extends FrameLayout {
     public MultiCardMenu(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
-        ViewConfiguration vc = ViewConfiguration.get(context);
+        ViewConfiguration vc = ViewConfiguration.get(mContext);
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
         mMinVelocity = vc.getScaledMinimumFlingVelocity() * 8;
         mTouchSlop = vc.getScaledTouchSlop();
-        mDensity = context.getResources().getDisplayMetrics().density;
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MultiCardMenu, defStyleAttr, 0);
+        mDensity = mContext.getResources().getDisplayMetrics().density;
+        TypedArray a = mContext.obtainStyledAttributes(attrs, R.styleable.MultiCardMenu, defStyleAttr, 0);
         MAX_CLICK_DISTANCE = mTitleBarHeightNoDisplay = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_no_display,dip2px(DEFAULT_TITLE_BAR_HEIGHT_NO_DISPLAY));
         mTitleBarHeightDisplay = a.getDimension(R.styleable.MultiCardMenu_title_bar_height_display, dip2px(DEFAULT_TITLE_BAR_HEIGHT_DISPLAY));
         mMarginTop = a.getDimension(R.styleable.MultiCardMenu_margin_top, dip2px(DEFAULT_CARD_MARGIN_TOP));
@@ -145,8 +147,35 @@ public class  MultiCardMenu extends FrameLayout {
         initBackgroundView();
     }
 
+    private void initBackgroundView() {
+        if(mBackgroundRid == -1) {//transparent background
+            mBackgroundRid = R.layout.multi_card_view_transparent_background_view;
+        }
+        mDarkFrameLayout = new DarkFrameLayout(mContext);
+        mDarkFrameLayout.addView(LayoutInflater.from(mContext).inflate(mBackgroundRid, null));
+        mDarkFrameLayout.setMultiCardMenu(this);
+        addView(mDarkFrameLayout);
+    }
+
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (DEBUG) {
+            Log.i(TAG,"onLayout:" + changed);
+        }
+        mChildCount = getChildCount();
+        View backgroundView = getChildAt(0);//background view
+        backgroundView.layout(0, 0, backgroundView.getMeasuredWidth(), backgroundView.getMeasuredHeight());
+        for(int i = 1; i < mChildCount; i ++) {
+            View childView = getChildAt(i);
+            int t = (int) (getMeasuredHeight() - (mChildCount - i)* mTitleBarHeightNoDisplay);
+            if (DEBUG) Log.i(TAG, String.format("child index:%s,top:%s", i, t));
+            childView.layout(0, t, childView.getMeasuredWidth(), childView.getMeasuredHeight() + t);
+        }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         initVelocityTracker(event);
         boolean isConsume = false;
         switch (event.getAction()){
@@ -165,24 +194,210 @@ public class  MultiCardMenu extends FrameLayout {
         return isConsume || super.dispatchTouchEvent(event);
     }
 
+    private boolean handleActionDown(MotionEvent event) {
+        boolean isConsume = false;
+        mPressStartTime = System.currentTimeMillis();
+        firstDownX = event.getX();
+        firstDownY = downY = event.getY();
+        int realChildCount =  mChildCount - 1 ;//do not contain background view
+        //Judge which card on touching
+        if(!isDisplaying && downY > getMeasuredHeight() - mChildCount * mTitleBarHeightNoDisplay) {
+            for(int i = 1; i <= mChildCount; i ++) {
+                if(downY < (getMeasuredHeight() - mChildCount * mTitleBarHeightNoDisplay + mTitleBarHeightNoDisplay * i)) {
+                    whichCardOnTouch = i-1;
+                    isTouchOnCard = true;
+                    if(mOnDisplayOrHideListener != null)
+                        mOnDisplayOrHideListener.onTouchCard(whichCardOnTouch - 1);
+                    isConsume = true;
+                    break;
+                }
+            }
+            mTouchingViewOriginY = ViewHelper.getY(getChildAt(whichCardOnTouch));
+        }else if(isDisplaying && downY > getMeasuredHeight() - (realChildCount - 1) * mTitleBarHeightDisplay) {
+            hideCard(mDisplayingCard);
+        }else if(isDisplaying && downY > mMarginTop && mDisplayingCard >= 0 && downY < getChildAt(mDisplayingCard).getMeasuredHeight() + mMarginTop) {
+            whichCardOnTouch = mDisplayingCard;
+            isTouchOnCard = true;
+        }else if(isDisplaying && (downY < mMarginTop || (mDisplayingCard >= 0 && (downY > mMarginTop + getChildAt(mDisplayingCard).getMeasuredHeight())))) {
+            hideCard(mDisplayingCard);
+        }
+
+        if(whichCardOnTouch == 0){
+            isTouchOnCard = false;
+        }
+        return isConsume;
+    }
+
+    private void handleActionMove(MotionEvent event) {
+        if(whichCardOnTouch == -1 || !isTouchOnCard)return;
+        if(canScrollInView((int) (firstDownY - event.getY()))) return;
+        computeVelocity();
+        if(Math.abs(yVelocity) < Math.abs(xVelocity)) return;
+        if(!isDragging && Math.abs(event.getY() - firstDownY) > mTouchSlop
+                && Math.abs(event.getX() - firstDownX) < mTouchSlop) {
+            isDragging = true;
+            downY = event.getY();
+        }
+
+        if(isDragging) {
+            deltaY = event.getY() - downY;
+            downY = event.getY();
+            View touchingChildView = getChildAt(whichCardOnTouch);
+            if(!mBoundary) {
+                touchingChildView.offsetTopAndBottom((int) deltaY);
+            }else {
+                float touchingViewY = ViewHelper.getY(touchingChildView);
+                if(touchingViewY + deltaY <= mMarginTop) {
+                    touchingChildView.offsetTopAndBottom((int) (mMarginTop - touchingViewY));
+                }else if(touchingViewY + deltaY >= mTouchingViewOriginY) {
+                    touchingChildView.offsetTopAndBottom((int) (mTouchingViewOriginY - touchingViewY));
+                }else {
+                    touchingChildView.offsetTopAndBottom((int) deltaY);
+                }
+            }
+        }
+
+    }
+
+    private void handleActionUp(MotionEvent event) {
+        if(whichCardOnTouch == -1 || !isTouchOnCard) return;
+        long pressDuration = System.currentTimeMillis() - mPressStartTime;
+        computeVelocity();
+        if(!isDisplaying && ((event.getY() - firstDownY < 0 && (Math.abs(event.getY() - firstDownY) > mMoveDistanceToTrigger))
+                || (yVelocity < 0 && Math.abs(yVelocity) > mMinVelocity && Math.abs(yVelocity)> Math.abs(xVelocity))
+        )){
+            displayCard(whichCardOnTouch);
+        }else if(!isDisplaying && pressDuration < MAX_CLICK_TIME &&   //means click
+                distance(firstDownX,firstDownY,event.getX(),event.getY()) < MAX_CLICK_DISTANCE) {
+            displayCard(whichCardOnTouch);
+        }else if(!isDisplaying && isDragging &&  ((event.getY() - firstDownY > 0) || Math.abs(event.getY() - firstDownY) < mMoveDistanceToTrigger)) {
+            hideCard(whichCardOnTouch);
+        }else if(isDisplaying) {
+            float currentY = ViewHelper.getY(getChildAt(mDisplayingCard));
+            if(currentY < mMarginTop || currentY < (mMarginTop + mMoveDistanceToTrigger)) {
+                ObjectAnimator.ofFloat(getChildAt(mDisplayingCard),"y",
+                        currentY,mMarginTop)
+                        .setDuration(mDuration)
+                        .start();
+            }else if(currentY > (mMarginTop + mMoveDistanceToTrigger)) {
+                hideCard(mDisplayingCard);
+            }
+        }
+        isTouchOnCard = false;
+        deltaY = 0;
+        isDragging = false;
+    }
+
+
+    /**
+     * @param direction Negative to check scrolling up, positive to check
+     *                  scrolling down.
+     * @return true if need dispatch touch event to child view,otherwise
+     */
+    private boolean canScrollInView(int direction) {
+        View view = getChildAt(whichCardOnTouch);
+        if(view instanceof ViewGroup){
+            View childView = findTopChildUnder((ViewGroup) view, firstDownX, firstDownY);
+            if(childView == null) return false;
+            if(childView instanceof AbsListView){
+                return absListViewCanScrollList((AbsListView)childView,direction);
+            }else if(childView instanceof ScrollView) {
+                return scrollViewCanScrollVertically((ScrollView) childView,direction);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Copy From AbsListView (API Level >= 19)
+     * @param absListView AbsListView
+     * @param direction Negative to check scrolling up, positive to check
+     *                  scrolling down.
+     * @return true if the list can be scrolled in the specified direction,
+     *         false otherwise
+     */
+    private boolean absListViewCanScrollList(AbsListView absListView,int direction) {
+        final int childCount = absListView.getChildCount();
+        if (childCount == 0) {
+            return false;
+        }
+        final int firstPosition = absListView.getFirstVisiblePosition();
+        if (direction > 0) {//can scroll down
+            final int lastBottom = absListView.getChildAt(childCount - 1).getBottom();
+            final int lastPosition = firstPosition + childCount;
+            return lastPosition < absListView.getCount() || lastBottom > absListView.getHeight() - absListView.getPaddingTop();
+        } else {//can scroll  up
+            final int firstTop = absListView.getChildAt(0).getTop();
+            return firstPosition > 0 || firstTop < absListView.getPaddingTop();
+        }
+    }
+
+    /**
+     *  Copy From ScrollView (API Level >= 14)
+     * @param direction Negative to check scrolling up, positive to check
+     *                  scrolling down.
+     *   @return true if the scrollView can be scrolled in the specified direction,
+     *         false otherwise
+     */
+    private  boolean scrollViewCanScrollVertically(ScrollView scrollView,int direction) {
+        final int offset = Math.max(0, scrollView.getScrollY());
+        final int range = computeVerticalScrollRange(scrollView) - scrollView.getHeight();
+        if (range == 0) return false;
+        if (direction < 0) { //scroll up
+            return offset > 0;
+        } else {//scroll down
+            return offset < range - 1;
+        }
+    }
+
+    /**
+     * Copy From ScrollView (API Level >= 14)
+     * <p>The scroll range of a scroll view is the overall height of all of its
+     * children.</p>
+     */
+    private int computeVerticalScrollRange(ScrollView scrollView) {
+        final int count = scrollView.getChildCount();
+        final int contentHeight = scrollView.getHeight() - scrollView.getPaddingBottom() - scrollView.getPaddingTop();
+        if (count == 0) {
+            return contentHeight;
+        }
+
+        int scrollRange = scrollView.getChildAt(0).getBottom();
+        final int scrollY = scrollView.getScrollY();
+        final int overScrollBottom = Math.max(0, scrollRange - contentHeight);
+        if (scrollY < 0) {
+            scrollRange -= scrollY;
+        } else if (scrollY > overScrollBottom) {
+            scrollRange += scrollY - overScrollBottom;
+        }
+
+        return scrollRange;
+    }
+
+    private void computeVelocity() {
+        mVelocityTracker.computeCurrentVelocity(1000, mMaxVelocity);
+        yVelocity = mVelocityTracker.getYVelocity();
+        xVelocity = mVelocityTracker.getXVelocity();
+    }
+
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if(DEBUG)Log.i(TAG,"isDragging:" + isDragging);
         return isDragging;
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         return true;
     }
 
     public void show(int index) {
-        if (isExistBackground)index ++;
         if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
         displayCard(index);
     }
 
     public void hide(int index) {
-        if(isExistBackground) index ++;
         if(index != mDisplayingCard || !isDisplaying) return;
         if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
         hideCard(index);
@@ -201,7 +416,7 @@ public class  MultiCardMenu extends FrameLayout {
      * @return less than 0 :No Display Card
      */
     public int getDisplayingCard() {
-        return isExistBackground ? (mDisplayingCard - 1) : mDisplayingCard;
+        return mDisplayingCard - 1;
     }
 
     public boolean isDisplaying() {
@@ -314,33 +529,6 @@ public class  MultiCardMenu extends FrameLayout {
         return this.mDuration;
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        mChildCount = getChildCount();
-        for(int i = 0; i < mChildCount; i ++) {
-            View childView = getChildAt(i);
-            if(i == 0 && isExistBackground) {
-                childView.layout(0,0,childView.getMeasuredWidth(),childView.getMeasuredHeight());
-                continue;
-            }
-//            FrameLayout.LayoutParams params = (LayoutParams) childView.getLayoutParams();
-            //l t r b
-            int t = (int) (getMeasuredHeight() - (mChildCount - i)* mTitleBarHeightNoDisplay);
-            childView.layout(0, t, childView.getMeasuredWidth(), childView.getMeasuredHeight() + t);
-        }
-    }
-
-    private void initBackgroundView() {
-        if(mBackgroundRid != -1) {
-            mDarkFrameLayout = new DarkFrameLayout(mContext);
-            mDarkFrameLayout.addView(LayoutInflater.from(mContext).inflate(mBackgroundRid, null));
-            isExistBackground = true;
-            mDarkFrameLayout.setMultiCardMenu(this);
-            addView(mDarkFrameLayout);
-        }
-    }
-
     private void initVelocityTracker(MotionEvent event) {
         if(mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
@@ -356,208 +544,10 @@ public class  MultiCardMenu extends FrameLayout {
         }
     }
 
-    private boolean handleActionDown(MotionEvent event) {
-        boolean isConsume = false;
-        mPressStartTime = System.currentTimeMillis();
-        firstDownY = downY = event.getY();
-        firstDownX = event.getX();
-        int childCount = isExistBackground ? (mChildCount - 1) : mChildCount;
-        //Judge which card on touching
-        if(!isDisplaying && downY > (getMeasuredHeight() - mChildCount * mTitleBarHeightNoDisplay)) {
-            for(int i = 1; i <= mChildCount; i ++) {
-                if(downY < (getMeasuredHeight() - mChildCount * mTitleBarHeightNoDisplay
-                        + mTitleBarHeightNoDisplay * i)) {
-                    whichCardOnTouch = i-1;
-                    isTouchOnCard = true;
-                    if(mOnDisplayOrHideListener != null)
-                        mOnDisplayOrHideListener.onTouchCard(whichCardOnTouch);
-                    isConsume = true;
-                    break;
-                }
-            }
-            mTouchingViewOriginY = ViewHelper.getY(getChildAt(whichCardOnTouch));
-        }else if(isDisplaying && downY > (getMeasuredHeight() - (childCount - 1) * mTitleBarHeightDisplay)) {
-            hideCard(mDisplayingCard);
-        }else if(isDisplaying && downY > mMarginTop && mDisplayingCard >= 0 && downY < getChildAt(mDisplayingCard).getMeasuredHeight() + mMarginTop) {
-            whichCardOnTouch = mDisplayingCard;
-            isTouchOnCard = true;
-        }else if(isDisplaying && (downY < mMarginTop
-                    || (mDisplayingCard >= 0
-                    && (downY > mMarginTop + getChildAt(mDisplayingCard).getMeasuredHeight())))) {
-            hideCard(mDisplayingCard);
-        }
-
-        if(isExistBackground && whichCardOnTouch == 0){
-            isTouchOnCard = false;
-        }
-        return isConsume;
-    }
-
-    private void handleActionMove(MotionEvent event) {
-        if(whichCardOnTouch == -1 || !isTouchOnCard)return;
-        if(supportScrollInView((int) (firstDownY - event.getY()))) return;
-        computeVelocity();
-        if(Math.abs(yVelocity) < Math.abs(xVelocity)) return;
-        if(!isDragging && Math.abs(event.getY() - firstDownY) > mTouchSlop
-                && Math.abs(event.getX() - firstDownX) < mTouchSlop) {
-            isDragging = true;
-            downY = event.getY();
-        }
-
-        if(isDragging) {
-            deltaY = event.getY() - downY;
-            downY = event.getY();
-            View touchingChildView = getChildAt(whichCardOnTouch);
-            if(!mBoundary) {
-                touchingChildView.offsetTopAndBottom((int) deltaY);
-            }else {
-                float touchingViewY = ViewHelper.getY(touchingChildView);
-                if(touchingViewY + deltaY <= mMarginTop) {
-                    touchingChildView.offsetTopAndBottom((int) (mMarginTop - touchingViewY));
-                }else if(touchingViewY + deltaY >= mTouchingViewOriginY) {
-                    touchingChildView.offsetTopAndBottom((int) (mTouchingViewOriginY - touchingViewY));
-                }else {
-                    touchingChildView.offsetTopAndBottom((int) deltaY);
-                }
-            }
-        }
-
-    }
-
-    private void handleActionUp(MotionEvent event) {
-        if(whichCardOnTouch == -1 || !isTouchOnCard) return;
-        long pressDuration = System.currentTimeMillis() - mPressStartTime;
-        computeVelocity();
-        if(!isDisplaying && ((event.getY() - firstDownY < 0 && (Math.abs(event.getY() - firstDownY) > mMoveDistanceToTrigger))
-                || (yVelocity < 0 && Math.abs(yVelocity) > mMinVelocity && Math.abs(yVelocity)> Math.abs(xVelocity))
-        )){
-            displayCard(whichCardOnTouch);
-        }else if(!isDisplaying && pressDuration < MAX_CLICK_TIME &&   //means click
-                distance(firstDownX,firstDownY,event.getX(),event.getY()) < MAX_CLICK_DISTANCE) {
-            displayCard(whichCardOnTouch);
-        }else if(!isDisplaying && isDragging &&  ((event.getY() - firstDownY > 0) || Math.abs(event.getY() - firstDownY) < mMoveDistanceToTrigger)) {
-            hideCard(whichCardOnTouch);
-        }else if(isDisplaying) {
-            float currentY = ViewHelper.getY(getChildAt(mDisplayingCard));
-            if(currentY < mMarginTop || currentY < (mMarginTop + mMoveDistanceToTrigger)) {
-                ObjectAnimator.ofFloat(getChildAt(mDisplayingCard),"y",
-                        currentY,mMarginTop)
-                        .setDuration(mDuration)
-                        .start();
-            }else if(currentY > (mMarginTop + mMoveDistanceToTrigger)) {
-                hideCard(mDisplayingCard);
-            }
-        }
-        isTouchOnCard = false;
-        deltaY = 0;
-        isDragging = false;
-    }
-
-    /**
-     * @param direction Negative to check scrolling up, positive to check
-     *                  scrolling down.
-     * @return true if need dispatch touch event to child view,otherwise
-     */
-    private boolean supportScrollInView(int direction) {
-        View view = getChildAt(whichCardOnTouch);
-        if(view instanceof ViewGroup){
-            View childView = findTopChildUnder((ViewGroup)view,firstDownX,firstDownY);
-            if(childView == null) return false;
-            if(childView instanceof AbsListView){
-                AbsListView absListView = (AbsListView)childView;
-                if(Build.VERSION.SDK_INT >= 19) {
-                    return absListView.canScrollList(direction);
-                }else {
-                    return absListViewCanScrollList(absListView,direction);
-                }
-            }else if(childView instanceof ScrollView) {
-                ScrollView scrollView = (ScrollView) childView;
-                if(Build.VERSION.SDK_INT >= 14) {
-                    return scrollView.canScrollVertically(direction);
-                }else {
-                    return scrollViewCanScrollVertically(scrollView,direction);
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Copy From AbsListView (API Level >= 19)
-     * @param absListView AbsListView
-     * @param direction Negative to check scrolling up, positive to check
-     *                  scrolling down.
-     * @return true if the list can be scrolled in the specified direction,
-     *         false otherwise
-     */
-    private boolean absListViewCanScrollList(AbsListView absListView,int direction) {
-        final int childCount = absListView.getChildCount();
-        if (childCount == 0) {
-            return false;
-        }
-        final int firstPosition = absListView.getFirstVisiblePosition();
-        if (direction > 0) {//can scroll down
-            final int lastBottom = absListView.getChildAt(childCount - 1).getBottom();
-            final int lastPosition = firstPosition + childCount;
-            return lastPosition < absListView.getCount() || lastBottom > absListView.getHeight() - absListView.getPaddingTop();
-        } else {//can scroll  up
-            final int firstTop = absListView.getChildAt(0).getTop();
-            return firstPosition > 0 || firstTop < absListView.getPaddingTop();
-        }
-    }
-
-    /**
-     *  Copy From ScrollView (API Level >= 14)
-     * @param direction Negative to check scrolling up, positive to check
-     *                  scrolling down.
-     *   @return true if the scrollView can be scrolled in the specified direction,
-     *         false otherwise
-     */
-    private  boolean scrollViewCanScrollVertically(ScrollView scrollView,int direction) {
-        final int offset = Math.max(0, scrollView.getScrollY());
-        final int range = computeVerticalScrollRange(scrollView) - scrollView.getHeight();
-        if (range == 0) return false;
-        if (direction < 0) { //scroll up
-            return offset > 0;
-        } else {//scroll down
-            return offset < range - 1;
-        }
-    }
-
-    /**
-     * Copy From ScrollView (API Level >= 14)
-     * <p>The scroll range of a scroll view is the overall height of all of its
-     * children.</p>
-     */
-    private int computeVerticalScrollRange(ScrollView scrollView) {
-        final int count = scrollView.getChildCount();
-        final int contentHeight = scrollView.getHeight() - scrollView.getPaddingBottom() - scrollView.getPaddingTop();
-        if (count == 0) {
-            return contentHeight;
-        }
-
-        int scrollRange = scrollView.getChildAt(0).getBottom();
-        final int scrollY = scrollView.getScrollY();
-        final int overscrollBottom = Math.max(0, scrollRange - contentHeight);
-        if (scrollY < 0) {
-            scrollRange -= scrollY;
-        } else if (scrollY > overscrollBottom) {
-            scrollRange += scrollY - overscrollBottom;
-        }
-
-        return scrollRange;
-    }
-
     private double distance(float x1, float y1, float x2, float y2) {
         float deltaX = x2 - x1;
         float deltaY = y2 - y1;
         return  Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    }
-
-    private void computeVelocity() {
-        mVelocityTracker.computeCurrentVelocity(1000,mMaxVelocity);
-        yVelocity = mVelocityTracker.getYVelocity();
-        xVelocity = mVelocityTracker.getXVelocity();
     }
 
     private void displayCard(int which) {
@@ -580,9 +570,8 @@ public class  MultiCardMenu extends FrameLayout {
             }
         });
         animators.add(displayAnimator);
-        int n = isExistBackground ? (mChildCount - 1) : mChildCount;
-        for(int i = 0,j = 1; i < mChildCount; i++) {
-            if(i == 0 && isExistBackground) continue;
+        int n = mChildCount - 1;
+        for(int i = 1,j = 1; i < mChildCount; i++) {
             if(i != which){
                 animators.add(ObjectAnimator
                         .ofFloat(getChildAt(i), "y", ViewHelper.getY(getChildAt(i)),
@@ -619,7 +608,7 @@ public class  MultiCardMenu extends FrameLayout {
         isDisplaying = true;
         mDisplayingCard = which;
         if(mOnDisplayOrHideListener != null)
-            mOnDisplayOrHideListener.onDisplay(isExistBackground ? (which - 1) : which);
+            mOnDisplayOrHideListener.onDisplay(which - 1);
     }
 
     private void hideCard(int which) {
@@ -642,12 +631,10 @@ public class  MultiCardMenu extends FrameLayout {
             }
         });
         animators.add(displayAnimator);
-        for(int i = 0; i < mChildCount; i ++) {
-            if(i == 0 && isExistBackground) continue;
+        for(int i = 1; i < mChildCount; i ++) {
             if(i != which) {
-                t = (int) (getMeasuredHeight() - (mChildCount - i)* mTitleBarHeightNoDisplay);
-                animators.add(ObjectAnimator.ofFloat(getChildAt(i),"y",
-                        ViewHelper.getY(getChildAt(i)),t));
+                t = (int) (getMeasuredHeight() - (mChildCount - i) * mTitleBarHeightNoDisplay);
+                animators.add(ObjectAnimator.ofFloat(getChildAt(i), "y", ViewHelper.getY(getChildAt(i)), t).setDuration(mDuration));
             }
         }
         AnimatorSet set = new AnimatorSet();
@@ -679,15 +666,14 @@ public class  MultiCardMenu extends FrameLayout {
         set.start();
         mDisplayingCard = -1;
         if(mOnDisplayOrHideListener != null)
-            mOnDisplayOrHideListener.onHide(isExistBackground ? (which - 1) : which);
+            mOnDisplayOrHideListener.onHide(which - 1);
     }
 
     private View findTopChildUnder(ViewGroup parentView,float x, float y) {
         final int childCount = parentView.getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
             final View child = parentView.getChildAt(i);
-            if (x >= child.getLeft() && x < child.getRight() &&
-                    y >= child.getTop() && y < child.getBottom()) {
+            if (x >= child.getLeft() && x < child.getRight() && y >= child.getTop() && y < child.getBottom()) {
                 return child;
             }
         }
@@ -704,11 +690,11 @@ public class  MultiCardMenu extends FrameLayout {
 
     public interface OnDisplayOrHideListener {
 
-        public void onDisplay(int which);
+        void onDisplay(int which);
 
-        public void onHide(int which);
+        void onHide(int which);
 
-        public void onTouchCard(int which);
+        void onTouchCard(int which);
 
     }
 

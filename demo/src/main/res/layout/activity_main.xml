@@ -1,265 +1,277 @@
-<LinearLayout
+<merge
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
+    xmlns:simple="http://schemas.android.com/apk/res-auto">
     <net.wujingchao.android.view.MultiCardMenu
-        xmlns:simple="http://schemas.android.com/apk/res-auto"
         android:id="@+id/multi_card_menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         simple:background_layout="@layout/background_view"
-        simple:margin_top="50dp"
+        simple:boundary="true"
         simple:fade="true"
+        simple:margin_top="50dp"
         simple:title_bar_height_display="20dp"
-        simple:title_bar_height_no_display="60dp"
-        simple:boundary="true">
+        simple:title_bar_height_no_display="60dp">
 
-
-         <LinearLayout
-             android:layout_width="match_parent"
-             android:layout_height="380dip"
-             android:orientation="vertical">
-             <TextView
-                 android:layout_width="match_parent"
-                 android:layout_height="70dp"
-                 android:background="@drawable/title_bar"
-                 android:textColor="@color/title_bar_text"
-                 android:gravity="center_vertical"
-                 android:text="Lollipop"
-                 android:textStyle="bold"
-                 android:textSize="20sp"
-                 android:paddingLeft="10dp"/>
-
-             <ScrollView
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent">
-                     <LinearLayout
-                         android:orientation="vertical"
-                         android:layout_width="match_parent"
-                         android:layout_height="match_parent"
-                         android:background="#FBF5E7">
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="I'm a ScrollView"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-                         <TextView
-                             android:gravity="center"
-                             android:background="#CDA49E"
-                             android:layout_width="match_parent"
-                             android:layout_height="50dip"
-                             android:text="For The Dream"
-                             android:textSize="20sp"
-                             android:textColor="#471F1F"
-                             android:layout_margin="5dip"/>
-
-
-                     </LinearLayout>
-                 </ScrollView>
-         </LinearLayout>
-
-       <LinearLayout
-               android:layout_width="match_parent"
-               android:layout_height="380dip"
-               android:orientation="vertical">
-               <TextView
-                   android:layout_width="match_parent"
-                   android:layout_height="70dp"
-                   android:background="@drawable/title_bar"
-                   android:textColor="@color/title_bar_text"
-                   android:gravity="center_vertical"
-                   android:text="Kitkat"
-                   android:textStyle="bold"
-                   android:textSize="20sp"
-                   android:paddingLeft="10dp"/>
-
-                   <TableLayout
-                       android:background="#3C3F41"
-                       android:layout_width="match_parent"
-                       android:layout_height="match_parent">
-
-                       <TableRow
-                           android:layout_weight="1">
-                           <Button
-                               android:layout_margin="2dip"
-                               android:textColor="#BABABA"
-                               android:background="#000000"
-                               android:layout_weight="1"
-                               android:layout_height="match_parent"
-                               android:text="Blue"
-                               android:onClick="blue"/>
-                           <Button
-                               android:layout_margin="2dip"
-                               android:background="#000000"
-                               android:textColor="#BABABA"
-                               android:layout_height="match_parent"
-                               android:layout_weight="1"
-                               android:text="Fail"
-                               android:onClick="fail"/>
-                       </TableRow>
-                       <TableRow
-                           android:layout_weight="1">
-                           <Button
-                               android:layout_margin="2dip"
-                               android:background="#000000"
-                               android:textColor="#BABABA"
-                               android:layout_height="match_parent"
-                               android:layout_weight="1"
-                               android:text="Hope"/>
-                           <Button
-                               android:layout_margin="2dip"
-                               android:background="#000000"
-                               android:textColor="#BABABA"
-                               android:layout_height="match_parent"
-                               android:layout_weight="1"
-                               android:text="Nice"/>
-                       </TableRow>
-                   </TableLayout>
-           </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="380dip"
             android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:background="@drawable/title_bar"
-                android:textColor="@color/title_bar_text"
                 android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:text="Lollipop"
+                android:textColor="@color/title_bar_text"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#FBF5E7"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="I'm a ScrollView"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="50dip"
+                        android:layout_margin="5dip"
+                        android:background="#CDA49E"
+                        android:gravity="center"
+                        android:text="For The Dream"
+                        android:textColor="#471F1F"
+                        android:textSize="20sp" />
+
+
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="380dip"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:background="@drawable/title_bar"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:text="Kitkat"
+                android:textColor="@color/title_bar_text"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#3C3F41">
+
+                <TableRow android:layout_weight="1">
+
+                    <Button
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dip"
+                        android:layout_weight="1"
+                        android:background="#000000"
+                        android:onClick="blue"
+                        android:text="Blue"
+                        android:textColor="#BABABA" />
+
+                    <Button
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dip"
+                        android:layout_weight="1"
+                        android:background="#000000"
+                        android:onClick="fail"
+                        android:text="Fail"
+                        android:textColor="#BABABA" />
+                </TableRow>
+
+                <TableRow android:layout_weight="1">
+
+                    <Button
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dip"
+                        android:layout_weight="1"
+                        android:background="#000000"
+                        android:text="Hope"
+                        android:textColor="#BABABA" />
+
+                    <Button
+                        android:layout_height="match_parent"
+                        android:layout_margin="2dip"
+                        android:layout_weight="1"
+                        android:background="#000000"
+                        android:text="Nice"
+                        android:textColor="#BABABA" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="380dip"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:background="@drawable/title_bar"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
                 android:text="Jelly Bean"
-                android:textStyle="bold"
+                android:textColor="@color/title_bar_text"
                 android:textSize="20sp"
-                android:paddingLeft="10dp"/>
+                android:textStyle="bold" />
 
-                <ListView
-                    android:background="#E0A09E"
-                    android:id="@+id/lv"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+            <ListView
+                android:id="@+id/lv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E0A09E" />
 
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="380dip"
             android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:background="@drawable/title_bar"
-                android:textColor="@color/title_bar_text"
                 android:gravity="center_vertical"
+                android:paddingLeft="10dp"
                 android:text="Ice Cream"
-                android:textStyle="bold"
+                android:textColor="@color/title_bar_text"
                 android:textSize="20sp"
-                android:paddingLeft="10dp"/>
+                android:textStyle="bold" />
 
-                <android.support.v4.view.ViewPager
-                    android:id="@+id/view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+            <android.support.v4.view.ViewPager
+                android:id="@+id/view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
         </LinearLayout>
-
     </net.wujingchao.android.view.MultiCardMenu>
-
-
-</LinearLayout>
+</merge>
