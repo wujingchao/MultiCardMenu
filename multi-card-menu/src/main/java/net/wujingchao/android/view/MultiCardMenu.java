@@ -2,7 +2,6 @@ package net.wujingchao.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -173,6 +172,7 @@ public class  MultiCardMenu extends FrameLayout {
             childView.layout(0, t, childView.getMeasuredWidth(), childView.getMeasuredHeight() + t);
         }
     }
+
 
     @Override
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
@@ -394,13 +394,14 @@ public class  MultiCardMenu extends FrameLayout {
 
     public void show(int index) {
         if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
-        displayCard(index);
+        if(index + 1 == mDisplayingCard || isDisplaying) return;
+        displayCard(index + 1);
     }
 
     public void hide(int index) {
-        if(index != mDisplayingCard || !isDisplaying) return;
         if(index >= mChildCount) throw new IllegalArgumentException("Card Index Not Exist");
-        hideCard(index);
+        if(index + 1 != mDisplayingCard || !isDisplaying) return;
+        hideCard(index + 1);
     }
 
     public void setOnDisplayOrHideListener(OnDisplayOrHideListener onDisplayOrHideListener) {
@@ -552,18 +553,18 @@ public class  MultiCardMenu extends FrameLayout {
 
     private void displayCard(int which) {
         if(isDisplaying || isAnimating)return;
+        final View displayingCard = getChildAt(which);
         if(isFade && mDarkFrameLayout != null) mDarkFrameLayout.fade(true);
         List<Animator> animators = new ArrayList<>(mChildCount);
-        final float distance = ViewHelper.getY(getChildAt(which)) - mMarginTop;
-        ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(getChildAt(which)), mMarginTop)
+        final float distance = ViewHelper.getY(displayingCard) - mMarginTop;
+        ValueAnimator displayAnimator = ValueAnimator.ofFloat(ViewHelper.getY(displayingCard), mMarginTop)
                  .setDuration(mDuration);
-        displayAnimator.setTarget(getChildAt(which));
-        final View displayingView = getChildAt(which);
+        displayAnimator.setTarget(displayingCard);
         displayAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float value = (float) valueAnimator.getAnimatedValue();
-                ViewHelper.setY(displayingView, value);
+                ViewHelper.setY(displayingCard, value);
                 if(mDarkFrameLayout != null && isFade) {
                     mDarkFrameLayout.fade((int) ((1-(value - mMarginTop)/distance) * DarkFrameLayout.MAX_ALPHA));
                 }
