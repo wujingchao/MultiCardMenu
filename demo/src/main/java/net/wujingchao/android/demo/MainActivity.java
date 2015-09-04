@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 //        int [] imgRes = {R.drawable.ent,R.drawable.qa};
-        int [] imgRes = {R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher,
-                R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher};
+        int [] imgRes = {R.drawable.nuan1,R.drawable.nuan2/*,R.drawable.ic_launcher,
+                R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher*/};
         final List<ImageView> imageViews = new LinkedList<>();
         ImageView imageView;
         for(Integer i :imgRes) {
