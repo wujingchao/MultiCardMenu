@@ -53,7 +53,7 @@
 ##Developed By
 
 
-- wujingchao -  wujingchao@gmail.com
+- wujingchao -  wujingchao92@gmail.com
 
 
 
