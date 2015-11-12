@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/wujingchao/MultiCardMenu.svg?branch=master)](https://travis-ci.org/wujingchao/MultiCardMenu)
 [![Android Gems](http://www.android-gems.com/badge/wujingchao/MultiCardMenu.svg?branch=master)](http://www.android-gems.com/lib/wujingchao/MultiCardMenu)
 
 # MultiCardMenu
