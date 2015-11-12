@@ -231,7 +231,7 @@ public class  MultiCardMenu extends FrameLayout {
 
     private void handleActionMove(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
-        if(canScrollInView((int) (firstDownY - event.getY()))){
+        if(mDisplayingCard != -1 && canScrollInView((int) (firstDownY - event.getY()))){
             if(DEBUG)Log.d(TAG,"canScrollInView:" + true);
             return;
         }
