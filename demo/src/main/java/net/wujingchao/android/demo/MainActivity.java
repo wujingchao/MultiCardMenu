@@ -65,20 +65,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 //        int [] imgRes = {R.drawable.ent,R.drawable.qa};
-        int [] imgRes = {R.drawable.nuan1,R.drawable.nuan2/*,R.drawable.ic_launcher,
-                R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher*/};
-        final List<ImageView> imageViews = new LinkedList<>();
-        ImageView imageView;
-        for(Integer i :imgRes) {
-            imageView = (ImageView) LayoutInflater.from(this).inflate(R.layout.image_item,null);
-            imageView.setImageResource(i);
-            imageViews.add(imageView);
-        }
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.view_pager);
+        final int [] imgRes = {R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher,
+        R.drawable.qa,R.drawable.ent,R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher,
+                R.drawable.qa,R.drawable.ent,R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher,
+                R.drawable.qa,R.drawable.ent};
+        final ViewPager mViewPager = (ViewPager) findViewById(R.id.view_pager);
         mViewPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {
-                return imageViews.size();
+                return imgRes.length;
             }
 
             @Override
@@ -88,13 +83,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void destroyItem(ViewGroup container, int position, Object object) {
-                container.removeView(imageViews.get(position));
+                mViewPager.removeView((View) object);
             }
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                container.addView(imageViews.get(position));
-                return imageViews.get(position);
+                ImageView imageView = new ImageView(MainActivity.this);
+//                ImageView imageView = (ImageView) LayoutInflater.from(MainActivity.this).inflate(R.layout.image_item,null);
+                imageView.setImageResource(imgRes[position]);
+                container.addView(imageView);
+                return imageView;
             }
         });
         ListView listView = (ListView) findViewById(R.id.lv);

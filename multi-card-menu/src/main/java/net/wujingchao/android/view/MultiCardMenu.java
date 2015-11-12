@@ -218,6 +218,7 @@ public class  MultiCardMenu extends FrameLayout {
         }else if(isDisplaying && downY > mMarginTop && mDisplayingCard >= 0 && downY < getChildAt(mDisplayingCard).getMeasuredHeight() + mMarginTop) {
             whichCardOnTouch = mDisplayingCard;
             isTouchOnCard = true;
+            if(DEBUG)Log.d(TAG,"whichCardOnTouch:" + whichCardOnTouch);
         }else if(isDisplaying && (downY < mMarginTop || (mDisplayingCard >= 0 && (downY > mMarginTop + getChildAt(mDisplayingCard).getMeasuredHeight())))) {
             hideCard(mDisplayingCard);
         }
@@ -230,7 +231,10 @@ public class  MultiCardMenu extends FrameLayout {
 
     private void handleActionMove(MotionEvent event) {
         if(whichCardOnTouch == -1 || !isTouchOnCard)return;
-        if(canScrollInView((int) (firstDownY - event.getY()))) return;
+        if(canScrollInView((int) (firstDownY - event.getY()))){
+            if(DEBUG)Log.d(TAG,"canScrollInView:" + true);
+            return;
+        }
         computeVelocity();
         if(Math.abs(yVelocity) < Math.abs(xVelocity)) return;
         if(!isDragging && Math.abs(event.getY() - firstDownY) > mTouchSlop
@@ -290,14 +294,14 @@ public class  MultiCardMenu extends FrameLayout {
 
 
     /**
-     * @param direction Negative to check scrolling up, positive to check
+     * @param direction  Positive to check scrolling up, negative to check
      *                  scrolling down.
      * @return true if need dispatch touch event to child view,otherwise
      */
     private boolean canScrollInView(int direction) {
         View view = getChildAt(whichCardOnTouch);
         if(view instanceof ViewGroup){
-            View childView = findTopChildUnder((ViewGroup) view, firstDownX, firstDownY);
+            View childView = findTopChildUnder((ViewGroup) view, firstDownX, firstDownY - mMarginTop);
             if(childView == null) return false;
             if(childView instanceof AbsListView){
                 return absListViewCanScrollList((AbsListView)childView,direction);
@@ -311,7 +315,7 @@ public class  MultiCardMenu extends FrameLayout {
     /**
      * Copy From AbsListView (API Level >= 19)
      * @param absListView AbsListView
-     * @param direction Negative to check scrolling up, positive to check
+     * @param direction Positive to check scrolling up, negative to check
      *                  scrolling down.
      * @return true if the list can be scrolled in the specified direction,
      *         false otherwise
@@ -334,7 +338,7 @@ public class  MultiCardMenu extends FrameLayout {
 
     /**
      *  Copy From ScrollView (API Level >= 14)
-     * @param direction Negative to check scrolling up, positive to check
+     * @param direction Positive to check scrolling up, negative to check
      *                  scrolling down.
      *   @return true if the scrollView can be scrolled in the specified direction,
      *         false otherwise
@@ -674,6 +678,7 @@ public class  MultiCardMenu extends FrameLayout {
         final int childCount = parentView.getChildCount();
         for (int i = childCount - 1; i >= 0; i--) {
             final View child = parentView.getChildAt(i);
+            if(DEBUG)Log.d(TAG,"findTopChildUnder:" + child.getTop() + ":" + child.getBottom());
             if (x >= child.getLeft() && x < child.getRight() && y >= child.getTop() && y < child.getBottom()) {
                 return child;
             }
