@@ -1,9 +1,9 @@
 package net.wujingchao.android.demo;
 
+import android.app.Activity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +15,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 import net.wujingchao.android.view.MultiCardMenu;
-import java.util.LinkedList;
-import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends Activity {
 
     private static final String TAG = "MainActivity";
 
@@ -89,12 +88,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
                 ImageView imageView = new ImageView(MainActivity.this);
-//                ImageView imageView = (ImageView) LayoutInflater.from(MainActivity.this).inflate(R.layout.image_item,null);
                 imageView.setImageResource(imgRes[position]);
                 container.addView(imageView);
                 return imageView;
             }
         });
+
+
         ListView listView = (ListView) findViewById(R.id.lv);
         listView.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,data));
 

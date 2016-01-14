@@ -2,17 +2,17 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-version = "0.9.3"
+version = "0.9.4"
 
 android {
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
     resourcePrefix "multi_card_view_"
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 11
         targetSdkVersion 22
         versionCode 1
-        versionName "0.9.3"
+        versionName "0.9.4"
     }
     buildTypes {
         release {
@@ -23,8 +23,6 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.nineoldandroids:library:2.4.0'
 }
 
 def siteUrl = 'https://github.com/wujingchao/MultiCardMenu/'
