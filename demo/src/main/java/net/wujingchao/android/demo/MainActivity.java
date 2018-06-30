@@ -69,6 +69,7 @@ public class MainActivity extends Activity {
                 R.drawable.qa,R.drawable.ent,R.drawable.nuan1,R.drawable.nuan2,R.drawable.ic_launcher,
                 R.drawable.qa,R.drawable.ent};
         final ViewPager mViewPager = (ViewPager) findViewById(R.id.view_pager);
+        mViewPager.setOffscreenPageLimit(imgRes.length);
         mViewPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {

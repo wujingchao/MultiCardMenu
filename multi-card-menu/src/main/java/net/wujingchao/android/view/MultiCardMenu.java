@@ -32,7 +32,7 @@ public class  MultiCardMenu extends ViewGroup {
 
     public static final String TAG = "MultiCardMenu";
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     private static final int DEFAULT_CARD_MARGIN_TOP = 0;
 
